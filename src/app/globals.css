@@ -33,6 +33,7 @@ body {
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Tabular monospace numerals for passports, dates, and numbers */
@@ -47,23 +48,23 @@ body {
   background-color: #FFFFFF;
   border: 1px solid #E2E8F0;
   border-radius: 0.75rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
 }
 
 .clean-card-hover {
-  transition: all 0.15s ease-in-out;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .clean-card-hover:hover {
   border-color: #CBD5E1;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.05);
 }
 
 /* Brand Buttons */
 .btn-navy {
   background-color: #213F7C;
   color: #FFFFFF;
-  transition: background-color 0.15s ease;
+  transition: all 0.15s ease;
 }
 .btn-navy:hover {
   background-color: #182F5D;
@@ -72,24 +73,43 @@ body {
 .btn-crimson {
   background-color: #C0434A;
   color: #FFFFFF;
-  transition: background-color 0.15s ease;
+  transition: all 0.15s ease;
 }
 .btn-crimson:hover {
   background-color: #A8373E;
 }
 
+/* Status indicator dot pulses */
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.animate-status-pulse {
+  animation: status-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #F1F5F9;
+  background: #F8FAFC;
 }
 ::-webkit-scrollbar-thumb {
   background: #CBD5E1;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
+}
+
+/* Hide scrollbar for clean horizontal tab rows on mobile */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

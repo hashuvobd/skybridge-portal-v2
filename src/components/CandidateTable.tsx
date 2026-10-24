@@ -17,9 +17,11 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp,
-  BarChart3,
-  FileText,
+  LayoutGrid,
+  Table as TableIcon,
   ShieldAlert,
+  Send,
+  FileText,
 } from 'lucide-react';
 import { CandidateRecord, AgentRecord } from '@/lib/types';
 
@@ -48,6 +50,129 @@ interface CandidateTableProps {
 
 const CITIES = ['Strumica', 'Tetovo', 'Skopje', 'Kumanovo', 'Shtip', 'Bitola'];
 
+interface CustomSelectOption {
+  value: string;
+  label: string;
+  count?: number;
+}
+
+interface CustomSelectProps {
+  value: string;
+  onChange: (val: string) => void;
+  options: CustomSelectOption[];
+  icon: React.ReactNode;
+  placeholder?: string;
+  className?: string;
+  align?: 'left' | 'right';
+}
+
+function CustomSelect({
+  value,
+  onChange,
+  options,
+  icon,
+  placeholder = 'Select...',
+  className = '',
+  align = 'left',
+}: CustomSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const selectedOption = options.find((opt) => opt.value === value);
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+      document.addEventListener('touchstart', handleOutsideClick);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('touchstart', handleOutsideClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
+  return (
+    <div ref={containerRef} className={`relative ${className}`}>
+      {/* Trigger Button */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50/80 px-2 sm:px-2.5 py-1.5 text-xs text-slate-800 transition-colors w-full cursor-pointer focus:outline-none focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C]"
+      >
+        <span className="shrink-0 text-slate-400">{icon}</span>
+        <span className="truncate flex-1 text-left font-medium">
+          {selectedOption ? selectedOption.label : placeholder}
+          {selectedOption?.count !== undefined && (
+            <span className="ml-1 text-[10px] font-mono-numeric text-slate-500 font-normal">
+              ({selectedOption.count})
+            </span>
+          )}
+        </span>
+        <ChevronDown
+          className={`h-3 w-3 text-slate-400 shrink-0 transition-transform duration-150 ${
+            isOpen ? 'rotate-180' : ''
+          }`}
+        />
+      </button>
+
+      {/* Custom Menu Panel (Rendered inside DOM - strictly bounded within screen) */}
+      {isOpen && (
+        <div
+          className={`absolute z-50 top-full mt-1.5 w-full min-w-[190px] sm:min-w-[210px] max-w-[calc(100vw-32px)] bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden py-1 max-h-56 overflow-y-auto animate-in fade-in-50 zoom-in-98 duration-100 ${
+            align === 'right' ? 'right-0' : 'left-0'
+          }`}
+        >
+          {options.map((opt) => {
+            const isSelected = opt.value === value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => {
+                  onChange(opt.value);
+                  setIsOpen(false);
+                }}
+                className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between transition-colors cursor-pointer ${
+                  isSelected
+                    ? 'bg-[#213F7C]/8 text-[#213F7C] font-bold'
+                    : 'text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <div className="flex items-center gap-1.5 min-w-0 pr-2">
+                  <span className="truncate">{opt.label}</span>
+                  {opt.count !== undefined && (
+                    <span
+                      className={`text-[10px] font-mono-numeric px-1.5 py-0.2 rounded font-semibold shrink-0 ${
+                        isSelected
+                          ? 'bg-[#213F7C]/15 text-[#213F7C]'
+                          : 'bg-slate-100 text-slate-500'
+                      }`}
+                    >
+                      {opt.count}
+                    </span>
+                  )}
+                </div>
+                {isSelected && <Check className="h-3.5 w-3.5 text-[#213F7C] shrink-0" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function CandidateTable({
   candidates,
   agents,
@@ -73,7 +198,7 @@ export default function CandidateTable({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [justUpdatedId, setJustUpdatedId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [showInsightsSummary, setShowInsightsSummary] = useState<boolean>(false);
+  const [mobileViewMode, setMobileViewMode] = useState<'cards' | 'table'>('cards');
   const searchInputRef = useRef<HTMLInputElement>(null);
   const pageSize = 25;
 
@@ -114,16 +239,26 @@ export default function CandidateTable({
     const missingPassports = candidates.filter((c) => c.approval && !c.passportInHand).length;
     const missingPcc = candidates.filter((c) => c.approval && !c.pccReceived).length;
 
-    // City breakdown
-    const cityCounts: Record<string, number> = {};
-    candidates.forEach((c) => {
-      if (c.approval && c.approvalCity) {
-        cityCounts[c.approvalCity] = (cityCounts[c.approvalCity] || 0) + 1;
-      }
-    });
-
-    return { total, submitted, approved, missingPassports, missingPcc, cityCounts };
+    return { total, submitted, approved, missingPassports, missingPcc };
   }, [candidates]);
+
+  // Dropdown Options for Custom In-App Pickers
+  const agencyOptions = useMemo(() => [
+    { value: 'all', label: 'All Agencies', count: candidates.length },
+    ...agents.map((ag) => ({
+      value: ag.id,
+      label: ag.name,
+      count: ag.candidateCount || 0,
+    })),
+  ], [agents, candidates.length]);
+
+  const cityOptions = useMemo(() => [
+    { value: 'all', label: 'All Municipalities' },
+    ...CITIES.map((c) => ({
+      value: c,
+      label: c,
+    })),
+  ], []);
 
   // Filter candidates based on active quick tab
   const filteredCandidates = useMemo(() => {
@@ -162,11 +297,11 @@ export default function CandidateTable({
   };
 
   return (
-    <div className="space-y-4 pb-12">
-      {/* 1. Smart Operational Status Tabs (The Central Daily Workspace Tabs) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
-        {/* Quick Filter Pill Buttons */}
-        <div className="flex flex-wrap items-center gap-1.5">
+    <div className="space-y-3 sm:space-y-4 pb-12">
+      {/* 1. Smart Operational Status Tabs */}
+      <div className="border-b border-slate-200/90 pb-2.5">
+        {/* DESKTOP VIEW (≥ md): Exactly one unified contiguous row */}
+        <div className="hidden md:flex items-center gap-1.5 py-0.5">
           {/* All Files Tab */}
           <button
             onClick={() => {
@@ -176,7 +311,7 @@ export default function CandidateTable({
             }}
             className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
               urgentFilter === '' && selectedStage === 'ALL'
-                ? 'bg-[#213F7C] text-white shadow-xs font-bold'
+                ? 'bg-[#213F7C] text-white shadow-2xs font-bold'
                 : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
             }`}
           >
@@ -201,16 +336,19 @@ export default function CandidateTable({
             }}
             className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
               urgentFilter === '' && selectedStage === 'SUBMITTED'
-                ? 'bg-[#213F7C] text-white shadow-xs font-bold'
+                ? 'bg-[#213F7C] text-white shadow-2xs font-bold'
                 : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
             }`}
           >
-            <span>In Process</span>
+            <span className="flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#213F7C]" />
+              In Process
+            </span>
             <span
               className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono-numeric font-bold ${
                 urgentFilter === '' && selectedStage === 'SUBMITTED'
                   ? 'bg-white/20 text-white'
-                  : 'bg-blue-50 text-blue-700'
+                  : 'bg-slate-100 text-slate-700'
               }`}
             >
               {metrics.submitted}
@@ -226,67 +364,63 @@ export default function CandidateTable({
             }}
             className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
               urgentFilter === '' && selectedStage === 'APPROVED'
-                ? 'bg-[#213F7C] text-white shadow-xs font-bold'
-                : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+                ? 'bg-emerald-700 text-white shadow-2xs font-bold'
+                : 'bg-white text-emerald-800 border border-emerald-200 hover:bg-emerald-50/50'
             }`}
           >
-            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-            <span>Approved Permits</span>
+            <span className="flex items-center gap-1">
+              <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+              Approved
+            </span>
             <span
               className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono-numeric font-bold ${
                 urgentFilter === '' && selectedStage === 'APPROVED'
                   ? 'bg-white/20 text-white'
-                  : 'bg-emerald-50 text-emerald-700'
+                  : 'bg-emerald-100 text-emerald-800'
               }`}
             >
               {metrics.approved}
             </span>
           </button>
 
-          {/* Urgent: Missing Physical Passports Tab */}
+          {/* Urgent: Missing Passports for Approved Candidates */}
           <button
             onClick={() => {
-              onUrgentFilterChange(
-                urgentFilter === 'missing_passport_approved' ? '' : 'missing_passport_approved'
-              );
-              onStageChange('ALL');
+              onUrgentFilterChange('missing_passport_approved');
               setCurrentPage(1);
             }}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer border ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
               urgentFilter === 'missing_passport_approved'
-                ? 'bg-[#C0434A] text-white border-[#C0434A] shadow-xs font-bold'
-                : 'bg-white text-[#C0434A] border-[#C0434A]/30 hover:bg-[#C0434A]/5'
+                ? 'bg-[#C0434A] text-white shadow-2xs font-bold'
+                : 'bg-white text-[#C0434A] border border-[#C0434A]/30 hover:bg-[#C0434A]/8'
             }`}
           >
-            <ShieldAlert className="h-3.5 w-3.5" />
-            <span>Missing Passport</span>
+            <AlertTriangle className="h-3 w-3 shrink-0" />
+            <span>Missing Passports</span>
             <span
               className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono-numeric font-bold ${
                 urgentFilter === 'missing_passport_approved'
                   ? 'bg-white/20 text-white'
-                  : 'bg-[#C0434A]/10 text-[#C0434A]'
+                  : 'bg-[#C0434A]/12 text-[#C0434A]'
               }`}
             >
               {metrics.missingPassports}
             </span>
           </button>
 
-          {/* Urgent: Missing PCC Tab */}
+          {/* Urgent: Missing PCC */}
           <button
             onClick={() => {
-              onUrgentFilterChange(
-                urgentFilter === 'missing_pcc_approved' ? '' : 'missing_pcc_approved'
-              );
-              onStageChange('ALL');
+              onUrgentFilterChange('missing_pcc_approved');
               setCurrentPage(1);
             }}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer border ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
               urgentFilter === 'missing_pcc_approved'
-                ? 'bg-amber-600 text-white border-amber-600 shadow-xs font-bold'
-                : 'bg-white text-amber-800 border-amber-300 hover:bg-amber-50'
+                ? 'bg-amber-600 text-white shadow-2xs font-bold'
+                : 'bg-white text-amber-800 border border-amber-300 hover:bg-amber-50'
             }`}
           >
-            <AlertTriangle className="h-3.5 w-3.5" />
+            <Clock className="h-3 w-3 shrink-0" />
             <span>Missing PCC</span>
             <span
               className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono-numeric font-bold ${
@@ -300,174 +434,441 @@ export default function CandidateTable({
           </button>
         </div>
 
-        {/* Collapsible Insights Toggle */}
-        <button
-          onClick={() => setShowInsightsSummary(!showInsightsSummary)}
-          className="flex items-center gap-1 text-xs font-semibold text-[#213F7C] hover:text-[#182F5D] bg-white border border-slate-200 hover:border-[#213F7C]/30 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer self-start sm:self-auto shadow-2xs"
-        >
-          <BarChart3 className="h-3.5 w-3.5" />
-          <span>{showInsightsSummary ? 'Hide Insights' : 'Executive Insights'}</span>
-          {showInsightsSummary ? (
-            <ChevronUp className="h-3 w-3" />
-          ) : (
-            <ChevronDown className="h-3 w-3" />
-          )}
-        </button>
-      </div>
-
-      {/* Collapsible Executive Insights Panel (In-place overview without leaving the table) */}
-      {showInsightsSummary && (
-        <div className="clean-card p-4 bg-slate-50/60 border border-slate-200 animate-in slide-in-from-top-2 duration-150">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Municipal Approvals */}
-            <div className="bg-white p-3.5 rounded-lg border border-slate-200">
-              <span className="text-[11px] font-bold text-[#213F7C] uppercase tracking-wider block mb-2">
-                Approved Municipalities
+        {/* MOBILE VIEW (< md): 2-Tier Grid that fits the screen without scrolling */}
+        <div className="md:hidden space-y-1.5">
+          {/* Row 1: 3 Equal Columns */}
+          <div className="grid grid-cols-3 gap-1.5">
+            <button
+              onClick={() => {
+                onUrgentFilterChange('');
+                onStageChange('ALL');
+                setCurrentPage(1);
+              }}
+              className={`flex items-center justify-between gap-1 rounded-lg px-2 py-1.5 text-[11px] font-semibold transition-all cursor-pointer ${
+                urgentFilter === '' && selectedStage === 'ALL'
+                  ? 'bg-[#213F7C] text-white shadow-2xs font-bold'
+                  : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              <span className="truncate">All</span>
+              <span
+                className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono-numeric font-bold shrink-0 ${
+                  urgentFilter === '' && selectedStage === 'ALL'
+                    ? 'bg-white/20 text-white'
+                    : 'bg-slate-100 text-slate-600'
+                }`}
+              >
+                {candidates.length}
               </span>
-              <div className="space-y-1.5">
-                {Object.entries(metrics.cityCounts).map(([city, count]) => (
-                  <div
-                    key={city}
-                    onClick={() => {
-                      onCityChange(city);
-                      setCurrentPage(1);
-                    }}
-                    className="flex items-center justify-between text-xs py-1 px-2 rounded hover:bg-slate-50 cursor-pointer"
-                  >
-                    <span className="font-semibold text-slate-700">{city}</span>
-                    <span className="font-mono-numeric font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                      {count} approved
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            </button>
 
-            {/* Sourcing Agency Overview */}
-            <div className="bg-white p-3.5 rounded-lg border border-slate-200 md:col-span-2">
-              <span className="text-[11px] font-bold text-[#213F7C] uppercase tracking-wider block mb-2">
-                Partner Sourcing Network ({agents.length} Regional Agencies)
+            <button
+              onClick={() => {
+                onUrgentFilterChange('');
+                onStageChange('SUBMITTED');
+                setCurrentPage(1);
+              }}
+              className={`flex items-center justify-between gap-1 rounded-lg px-2 py-1.5 text-[11px] font-semibold transition-all cursor-pointer ${
+                urgentFilter === '' && selectedStage === 'SUBMITTED'
+                  ? 'bg-[#213F7C] text-white shadow-2xs font-bold'
+                  : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              <span className="truncate">In Process</span>
+              <span
+                className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono-numeric font-bold shrink-0 ${
+                  urgentFilter === '' && selectedStage === 'SUBMITTED'
+                    ? 'bg-white/20 text-white'
+                    : 'bg-slate-100 text-slate-700'
+                }`}
+              >
+                {metrics.submitted}
               </span>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {agents.slice(0, 6).map((ag) => (
-                  <div
-                    key={ag.id}
-                    onClick={() => {
-                      onAgentChange(ag.id);
-                      setCurrentPage(1);
-                    }}
-                    className="p-2 rounded border border-slate-100 hover:border-[#213F7C]/30 hover:bg-slate-50 cursor-pointer transition-colors"
-                  >
-                    <div className="text-xs font-bold text-slate-800 truncate">{ag.name}</div>
-                    <div className="text-[11px] text-slate-500 font-mono-numeric mt-0.5">
-                      {ag.candidateCount || 0} candidates • {ag.approvedCount || 0} approved
-                    </div>
-                  </div>
-                ))}
+            </button>
+
+            <button
+              onClick={() => {
+                onUrgentFilterChange('');
+                onStageChange('APPROVED');
+                setCurrentPage(1);
+              }}
+              className={`flex items-center justify-between gap-1 rounded-lg px-2 py-1.5 text-[11px] font-semibold transition-all cursor-pointer ${
+                urgentFilter === '' && selectedStage === 'APPROVED'
+                  ? 'bg-emerald-700 text-white shadow-2xs font-bold'
+                  : 'bg-white text-emerald-800 border border-emerald-200 hover:bg-emerald-50/50'
+              }`}
+            >
+              <span className="truncate">Approved</span>
+              <span
+                className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono-numeric font-bold shrink-0 ${
+                  urgentFilter === '' && selectedStage === 'APPROVED'
+                    ? 'bg-white/20 text-white'
+                    : 'bg-emerald-100 text-emerald-800'
+                }`}
+              >
+                {metrics.approved}
+              </span>
+            </button>
+          </div>
+
+          {/* Row 2: 2 Equal Columns for Urgent Attention */}
+          <div className="grid grid-cols-2 gap-1.5">
+            <button
+              onClick={() => {
+                onUrgentFilterChange('missing_passport_approved');
+                setCurrentPage(1);
+              }}
+              className={`flex items-center justify-between gap-1 rounded-lg px-2 py-1.5 text-[11px] font-semibold transition-all cursor-pointer ${
+                urgentFilter === 'missing_passport_approved'
+                  ? 'bg-[#C0434A] text-white shadow-2xs font-bold'
+                  : 'bg-white text-[#C0434A] border border-[#C0434A]/30 hover:bg-[#C0434A]/8'
+              }`}
+            >
+              <div className="flex items-center gap-1 truncate">
+                <AlertTriangle className="h-3 w-3 shrink-0" />
+                <span className="truncate">Missing Passports</span>
               </div>
-            </div>
+              <span
+                className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono-numeric font-bold shrink-0 ${
+                  urgentFilter === 'missing_passport_approved'
+                    ? 'bg-white/20 text-white'
+                    : 'bg-[#C0434A]/12 text-[#C0434A]'
+                }`}
+              >
+                {metrics.missingPassports}
+              </span>
+            </button>
+
+            <button
+              onClick={() => {
+                onUrgentFilterChange('missing_pcc_approved');
+                setCurrentPage(1);
+              }}
+              className={`flex items-center justify-between gap-1 rounded-lg px-2 py-1.5 text-[11px] font-semibold transition-all cursor-pointer ${
+                urgentFilter === 'missing_pcc_approved'
+                  ? 'bg-amber-600 text-white shadow-2xs font-bold'
+                  : 'bg-white text-amber-800 border border-amber-300 hover:bg-amber-50'
+              }`}
+            >
+              <div className="flex items-center gap-1 truncate">
+                <Clock className="h-3 w-3 shrink-0" />
+                <span className="truncate">Missing PCC</span>
+              </div>
+              <span
+                className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono-numeric font-bold shrink-0 ${
+                  urgentFilter === 'missing_pcc_approved'
+                    ? 'bg-white/20 text-white'
+                    : 'bg-amber-100 text-amber-800'
+                }`}
+              >
+                {metrics.missingPcc}
+              </span>
+            </button>
           </div>
         </div>
-      )}
+      </div>
 
       {/* 2. Search & Filter Toolbar */}
-      <div className="clean-card p-3.5">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+      <div className="clean-card p-3 sm:p-3.5">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 sm:gap-3">
           {/* Universal Fast Search Box */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+          <div className="relative flex-1 w-full lg:max-w-md">
+            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
             <input
               ref={searchInputRef}
               type="text"
-              placeholder="Search candidate name, passport, file ID, agency... (Press / to search)"
+              placeholder="Search candidate name, passport, file ID... (Press /)"
               value={searchQuery}
               onChange={(e) => {
                 onSearchChange(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full rounded-md border border-slate-300 bg-white pl-9 pr-8 py-2 text-xs text-slate-900 placeholder-slate-400 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none transition-all shadow-2xs"
+              className="w-full rounded-lg border border-slate-300 bg-white pl-8.5 pr-8 py-1.5 sm:py-2 text-xs text-slate-900 placeholder-slate-400 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none transition-all"
             />
             {searchQuery && (
               <button
                 onClick={() => onSearchChange('')}
-                className="absolute right-3 top-2.5 text-xs text-slate-400 hover:text-slate-600 cursor-pointer font-bold"
+                className="absolute right-2.5 top-2 text-xs text-slate-400 hover:text-slate-600 cursor-pointer font-bold p-0.5"
               >
                 ✕
               </button>
             )}
           </div>
 
-          {/* Quick Dropdown Filters */}
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Agency Filter */}
-            <div className="flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs">
-              <Building className="h-3.5 w-3.5 text-slate-400" />
-              <select
+          {/* Quick Dropdown Filters & Controls (Guaranteed to fit mobile screens) */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full lg:w-auto">
+            {/* Dropdowns Row: 2 equal columns on mobile so they NEVER overflow the viewport */}
+            <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:items-center">
+              {/* Custom In-App Agency Filter */}
+              <CustomSelect
                 value={selectedAgent}
-                onChange={(e) => {
-                  onAgentChange(e.target.value);
+                onChange={(val) => {
+                  onAgentChange(val);
                   setCurrentPage(1);
                 }}
-                className="bg-transparent text-slate-700 text-xs focus:outline-none cursor-pointer"
-              >
-                <option value="all">All Agencies ({agents.length})</option>
-                {agents.map((ag) => (
-                  <option key={ag.id} value={ag.id}>
-                    {ag.name} ({ag.candidateCount || 0})
-                  </option>
-                ))}
-              </select>
-            </div>
+                options={agencyOptions}
+                icon={<Building className="h-3.5 w-3.5" />}
+                className="w-full sm:w-[170px]"
+                align="left"
+              />
 
-            {/* City / Municipality Filter */}
-            <div className="flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs">
-              <MapPin className="h-3.5 w-3.5 text-slate-400" />
-              <select
+              {/* Custom In-App City / Municipality Filter */}
+              <CustomSelect
                 value={selectedCity}
-                onChange={(e) => {
-                  onCityChange(e.target.value);
+                onChange={(val) => {
+                  onCityChange(val);
                   setCurrentPage(1);
                 }}
-                className="bg-transparent text-slate-700 text-xs focus:outline-none cursor-pointer"
-              >
-                <option value="all">All Municipalities</option>
-                {CITIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
+                options={cityOptions}
+                icon={<MapPin className="h-3.5 w-3.5" />}
+                className="w-full sm:w-[155px]"
+                align="right"
+              />
             </div>
 
-            {/* Clear Filters Reset */}
-            {isAnyFilterActive && (
-              <button
-                onClick={handleClearAllFilters}
-                className="text-xs font-semibold text-[#213F7C] hover:underline px-2 py-1 cursor-pointer"
-              >
-                Reset filters
-              </button>
-            )}
+            {/* Actions Row: Reset, View Switcher, and Export */}
+            <div className="flex items-center justify-between sm:justify-start gap-2 w-full sm:w-auto">
+              {/* Clear Filters Reset */}
+              {isAnyFilterActive ? (
+                <button
+                  onClick={handleClearAllFilters}
+                  className="text-xs font-semibold text-[#213F7C] hover:underline px-1 py-1 cursor-pointer shrink-0"
+                >
+                  Reset filters
+                </button>
+              ) : (
+                <span className="hidden sm:inline" />
+              )}
 
-            {/* Export Excel Button */}
-            <button
-              onClick={onExportExcel}
-              className="flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer ml-auto sm:ml-0"
-            >
-              <Download className="h-3.5 w-3.5 text-slate-500" />
-              <span>Export (.XLSX)</span>
-            </button>
+              <div className="flex items-center gap-2 ml-auto sm:ml-0">
+                {/* Mobile View Switcher (Cards vs Table) */}
+                <div className="flex md:hidden items-center rounded-lg border border-slate-300 bg-slate-100 p-0.5 shrink-0">
+                  <button
+                    onClick={() => setMobileViewMode('cards')}
+                    className={`p-1 rounded text-xs transition-colors ${
+                      mobileViewMode === 'cards'
+                        ? 'bg-white text-[#213F7C] shadow-2xs font-bold'
+                        : 'text-slate-500'
+                    }`}
+                    title="Card View"
+                  >
+                    <LayoutGrid className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setMobileViewMode('table')}
+                    className={`p-1 rounded text-xs transition-colors ${
+                      mobileViewMode === 'table'
+                        ? 'bg-white text-[#213F7C] shadow-2xs font-bold'
+                        : 'text-slate-500'
+                    }`}
+                    title="Table View"
+                  >
+                    <TableIcon className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+
+                {/* Export Excel Button */}
+                <button
+                  onClick={onExportExcel}
+                  className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors shadow-2xs cursor-pointer shrink-0"
+                >
+                  <Download className="h-3.5 w-3.5 text-slate-500" />
+                  <span className="hidden sm:inline">Export (.XLSX)</span>
+                  <span className="sm:hidden">Export</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* 3. Main Master Operations Table */}
-      <div className="clean-card overflow-hidden">
+      {/* 3. MOBILE RESPONSIVE CARDS VIEW (Displayed on mobile screens when mode is 'cards') */}
+      <div className={`md:hidden ${mobileViewMode === 'cards' ? 'block' : 'hidden'} space-y-2.5`}>
+        {loading ? (
+          <div className="clean-card p-8 text-center text-slate-500">
+            <div className="flex flex-col items-center justify-center gap-2">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#213F7C] border-t-transparent" />
+              <span className="text-xs">Loading candidates...</span>
+            </div>
+          </div>
+        ) : paginatedCandidates.length === 0 ? (
+          <div className="clean-card p-8 text-center text-slate-500">
+            <p className="text-xs">No candidate records match your filter criteria.</p>
+            <button
+              onClick={handleClearAllFilters}
+              className="mt-2 text-xs text-[#213F7C] font-semibold hover:underline cursor-pointer"
+            >
+              Reset all filters
+            </button>
+          </div>
+        ) : (
+          paginatedCandidates.map((c) => {
+            const isSelected = selectedIds.includes(c.id);
+            const isApproved = c.approval;
+            const isUrgentMissingPassport = isApproved && !c.passportInHand;
+
+            return (
+              <div
+                key={c.id}
+                onClick={() => onOpenDrawer(c)}
+                className={`clean-card p-3.5 transition-all cursor-pointer ${
+                  isSelected ? 'border-[#213F7C] bg-[#213F7C]/4 ring-1 ring-[#213F7C]' : ''
+                }`}
+              >
+                {/* Header: Name, File ID, Status */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          onToggleSelect(c.id);
+                        }}
+                        className="rounded border-slate-300 accent-[#213F7C] h-4 w-4"
+                      />
+                      <h4 className="font-bold text-slate-900 text-xs sm:text-sm uppercase truncate">
+                        {c.name}
+                      </h4>
+                      {isUrgentMissingPassport && (
+                        <span
+                          title="Missing physical passport"
+                          className="text-[#C0434A] animate-status-pulse shrink-0"
+                        >
+                          <AlertTriangle className="h-3.5 w-3.5" />
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-500">
+                      <span className="font-mono-numeric font-semibold text-slate-700 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200">
+                        {c.fileId}
+                      </span>
+                      <span className="truncate">{c.agent?.name || 'Direct Agency'}</span>
+                    </div>
+                  </div>
+
+                  {/* Stage Pill */}
+                  <span
+                    className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border ${
+                      c.stage === 'DEPLOYMENT_READY'
+                        ? 'bg-[#C0434A]/10 text-[#C0434A] border-[#C0434A]/25'
+                        : c.stage === 'APPROVED'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : c.stage === 'SUBMITTED'
+                        ? 'bg-[#213F7C]/10 text-[#213F7C] border-[#213F7C]/20'
+                        : 'bg-slate-100 text-slate-700 border-slate-200'
+                    }`}
+                  >
+                    <span
+                      className={`h-1.5 w-1.5 rounded-full ${
+                        c.stage === 'APPROVED' || c.stage === 'DEPLOYMENT_READY'
+                          ? 'bg-emerald-600'
+                          : 'bg-[#213F7C]'
+                      }`}
+                    />
+                    {c.stage.replace('_', ' ')}
+                  </span>
+                </div>
+
+                {/* Passport & Details Row */}
+                <div className="flex items-center justify-between border-t border-slate-100 mt-2.5 pt-2 text-xs">
+                  <div className="flex items-center gap-1.5 font-mono-numeric">
+                    <span className="text-[11px] font-medium text-slate-600 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                      {c.passportNumber}
+                    </span>
+                    <button
+                      onClick={(e) => handleCopyPassport(c.passportNumber, c.id, e)}
+                      className="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                      title="Copy passport"
+                    >
+                      {copiedId === c.id ? (
+                        <Check className="h-3 w-3 text-emerald-600" />
+                      ) : (
+                        <Copy className="h-3 w-3" />
+                      )}
+                    </button>
+                  </div>
+
+                  {c.approvalCity && (
+                    <span className="inline-flex items-center gap-1 text-[11px] text-slate-600">
+                      <MapPin className="h-3 w-3 text-slate-400" />
+                      {c.approvalCity}
+                    </span>
+                  )}
+                </div>
+
+                {/* Fast Action Toggle Chips for Mobile */}
+                <div className="flex items-center justify-between border-t border-slate-100 mt-2 pt-2 gap-2">
+                  <div className="flex items-center gap-1.5">
+                    {/* Submission Slip Chip */}
+                    <button
+                      onClick={(e) =>
+                        handleCellUpdate(
+                          c.id,
+                          {
+                            submissionSlip: !c.submissionSlip,
+                            submissionDate: !c.submissionSlip
+                              ? new Date().toLocaleDateString('en-GB')
+                              : null,
+                          },
+                          e
+                        )
+                      }
+                      className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold border ${
+                        c.submissionSlip
+                          ? 'bg-[#213F7C]/8 text-[#213F7C] border-[#213F7C]/20'
+                          : 'bg-slate-50 text-slate-500 border-slate-200'
+                      }`}
+                    >
+                      <Send className="h-2.5 w-2.5" />
+                      <span>{c.submissionSlip ? 'Filed' : 'Slip'}</span>
+                    </button>
+
+                    {/* Work Permit Approval Chip */}
+                    <button
+                      onClick={(e) =>
+                        handleCellUpdate(
+                          c.id,
+                          {
+                            approval: !c.approval,
+                            approvalDate: !c.approval
+                              ? new Date().toLocaleDateString('en-GB')
+                              : null,
+                            approvalCity: !c.approval ? c.approvalCity || 'Strumica' : c.approvalCity,
+                          },
+                          e
+                        )
+                      }
+                      className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold border ${
+                        c.approval
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : 'bg-slate-50 text-slate-500 border-slate-200'
+                      }`}
+                    >
+                      <CheckCircle2 className="h-2.5 w-2.5" />
+                      <span>{c.approval ? 'Permit' : 'Permit'}</span>
+                    </button>
+                  </div>
+
+                  <span className="text-[11px] font-semibold text-[#213F7C] flex items-center gap-0.5">
+                    Open File <ChevronRight className="h-3 w-3" />
+                  </span>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* 4. MASTER SPREADSHEET TABLE (Always visible on desktop `>= md`, or on mobile if table mode selected) */}
+      <div className={`clean-card overflow-hidden ${mobileViewMode === 'cards' ? 'hidden md:block' : 'block'}`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/80 text-slate-500 font-semibold text-[11px] uppercase tracking-wider">
-                <th className="py-3 px-3 w-10 text-center">
+              <tr className="border-b border-slate-200 bg-slate-50/90 text-slate-600 font-semibold text-[11px] uppercase tracking-wider select-none">
+                <th className="py-2.5 px-3 w-10 text-center">
                   <input
                     type="checkbox"
                     checked={allSelectedOnPage}
@@ -475,21 +876,21 @@ export default function CandidateTable({
                     className="rounded border-slate-300 accent-[#213F7C] text-[#213F7C] focus:ring-[#213F7C] cursor-pointer"
                   />
                 </th>
-                <th className="py-3 px-2 w-10 font-mono-numeric text-center">#</th>
-                <th className="py-3 px-3">File ID</th>
-                <th className="py-3 px-4">Candidate Name</th>
-                <th className="py-3 px-3">Passport No.</th>
-                <th className="py-3 px-3">Sourcing Agency</th>
-                <th className="py-3 px-3 text-center">Submission Slip</th>
-                <th className="py-3 px-3 text-center">Work Permit</th>
-                <th className="py-3 px-3">City / Region</th>
-                <th className="py-3 px-3 text-center">Passport</th>
-                <th className="py-3 px-3 text-center">PCC</th>
-                <th className="py-3 px-3 text-center">Stage</th>
-                <th className="py-3 px-3 text-right">Details</th>
+                <th className="py-2.5 px-2 w-10 font-mono-numeric text-center">#</th>
+                <th className="py-2.5 px-3">File ID</th>
+                <th className="py-2.5 px-4">Candidate Name</th>
+                <th className="py-2.5 px-3">Passport No.</th>
+                <th className="py-2.5 px-3">Sourcing Agency</th>
+                <th className="py-2.5 px-3 text-center">Submission Slip</th>
+                <th className="py-2.5 px-3 text-center">Work Permit</th>
+                <th className="py-2.5 px-3">City / Region</th>
+                <th className="py-2.5 px-3 text-center">Passport</th>
+                <th className="py-2.5 px-3 text-center">PCC</th>
+                <th className="py-2.5 px-3 text-center">Stage</th>
+                <th className="py-2.5 px-3 text-right">Details</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 bg-white">
+            <tbody className="divide-y divide-slate-200/80 bg-white">
               {loading ? (
                 <tr>
                   <td colSpan={13} className="py-12 text-center text-slate-500">
@@ -523,8 +924,8 @@ export default function CandidateTable({
                       key={c.id}
                       onClick={() => onOpenDrawer(c)}
                       className={`hover:bg-slate-50/90 transition-colors cursor-pointer group ${
-                        isSelected ? 'bg-[#213F7C]/6' : ''
-                      } ${isJustUpdated ? 'bg-amber-50' : ''}`}
+                        isSelected ? 'bg-[#213F7C]/5' : ''
+                      } ${isJustUpdated ? 'bg-amber-50/80' : ''}`}
                     >
                       {/* Checkbox */}
                       <td
@@ -560,7 +961,7 @@ export default function CandidateTable({
                           {isUrgentMissingPassport && (
                             <span
                               title="Physical passport not in office (Urgent)"
-                              className="text-[#C0434A] animate-pulse"
+                              className="text-[#C0434A] animate-status-pulse"
                             >
                               <AlertTriangle className="h-3.5 w-3.5" />
                             </span>
@@ -690,7 +1091,7 @@ export default function CandidateTable({
                           title="Toggle original passport in office"
                           className={`inline-flex items-center justify-center h-6 w-6 rounded border transition-colors cursor-pointer ${
                             c.passportInHand
-                              ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
+                              ? 'bg-emerald-50 border-emerald-300 text-emerald-700 font-bold'
                               : 'bg-white border-slate-200 text-slate-300 hover:border-slate-400'
                           }`}
                         >
@@ -707,7 +1108,7 @@ export default function CandidateTable({
                           title="Toggle Police Clearance Certificate"
                           className={`inline-flex items-center justify-center h-6 w-6 rounded border transition-colors cursor-pointer ${
                             c.pccReceived
-                              ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
+                              ? 'bg-emerald-50 border-emerald-300 text-emerald-700 font-bold'
                               : 'bg-white border-slate-200 text-slate-300 hover:border-slate-400'
                           }`}
                         >
@@ -755,13 +1156,13 @@ export default function CandidateTable({
 
         {/* Pagination Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-200 bg-slate-50/50 px-4 py-3">
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-slate-500 text-center sm:text-left">
             Showing <strong className="text-slate-900">{startIndex + 1}</strong> to{' '}
             <strong className="text-slate-900">{endIndex}</strong> of{' '}
             <strong className="text-slate-900">{filteredCandidates.length}</strong> candidates
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}

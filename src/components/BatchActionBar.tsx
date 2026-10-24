@@ -36,15 +36,15 @@ export default function BatchActionBar({
   };
 
   return (
-    <div className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2 w-full max-w-2xl px-4 animate-in slide-in-from-bottom-3 duration-200">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-300 bg-white p-3.5 shadow-xl">
+    <div className="fixed bottom-14 sm:bottom-6 left-1/2 z-40 -translate-x-1/2 w-full max-w-xl px-3 animate-in slide-in-from-bottom-3 duration-200">
+      <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3 rounded-xl border border-slate-300 bg-white/95 backdrop-blur-md p-2.5 sm:p-3 shadow-xl">
         {/* Selection Count */}
         <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[#213F7C] text-white text-xs font-bold font-mono-numeric">
+          <div className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-md bg-[#213F7C] text-white text-[11px] sm:text-xs font-bold font-mono-numeric">
             {selectedCount}
           </div>
           <span className="text-xs font-semibold text-slate-800">
-            {selectedCount === 1 ? '1 candidate selected' : `${selectedCount} candidates selected`}
+            {selectedCount === 1 ? '1 selected' : `${selectedCount} selected`}
           </span>
           <button
             onClick={onClearSelection}
@@ -55,20 +55,20 @@ export default function BatchActionBar({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           {/* Mark Submission Slip */}
           <button
             onClick={() => handleAction('MARK_SUBMITTED')}
             disabled={isProcessing}
-            className="flex items-center gap-1.5 rounded-md border border-[#213F7C]/30 bg-[#213F7C]/8 px-2.5 py-1.5 text-xs font-semibold text-[#213F7C] hover:bg-[#213F7C]/15 transition-colors disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-1 rounded-lg border border-[#213F7C]/30 bg-[#213F7C]/8 px-2 sm:px-2.5 py-1.5 text-xs font-semibold text-[#213F7C] hover:bg-[#213F7C]/15 transition-colors disabled:opacity-50 cursor-pointer"
           >
-            <Send className="h-3.5 w-3.5 text-[#213F7C]" />
+            <Send className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[#213F7C]" />
             <span>Mark Filed</span>
           </button>
 
           {/* City selector for batch approval */}
-          <div className="flex items-center gap-1 rounded-md border border-slate-300 bg-slate-50 px-2 py-1 text-xs">
-            <MapPin className="h-3 w-3 text-slate-400" />
+          <div className="flex items-center gap-1 rounded-lg border border-slate-300 bg-slate-50 px-2 py-1 text-xs">
+            <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
             <select
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}
@@ -86,10 +86,10 @@ export default function BatchActionBar({
           <button
             onClick={() => handleAction('MARK_APPROVED')}
             disabled={isProcessing}
-            className="flex items-center gap-1.5 rounded-md bg-[#C0434A] hover:bg-[#A8373E] px-3 py-1.5 text-xs font-bold text-white transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
+            className="flex items-center gap-1.5 rounded-lg bg-[#C0434A] hover:bg-[#A8373E] px-2.5 sm:px-3 py-1.5 text-xs font-bold text-white transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
           >
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            <span>Approve Selected</span>
+            <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            <span>Approve</span>
           </button>
 
           {/* Dismiss */}

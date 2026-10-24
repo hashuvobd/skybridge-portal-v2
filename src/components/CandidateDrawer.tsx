@@ -106,13 +106,13 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/30 backdrop-blur-2xs transition-opacity animate-in fade-in duration-200">
-      <div className="fixed inset-y-0 right-0 flex max-w-full pl-10">
-        <div className="w-screen max-w-lg bg-white shadow-2xl flex flex-col justify-between border-l border-slate-200">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-150">
+      <div className="fixed inset-y-0 right-0 flex max-w-full w-full sm:w-auto">
+        <div className="w-full sm:w-[500px] lg:w-[540px] bg-white shadow-2xl flex flex-col justify-between border-l border-slate-200">
           {/* Header */}
-          <div className="px-6 py-5 border-b border-slate-200 bg-white sticky top-0 z-10 flex items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2">
+          <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-200 bg-white sticky top-0 z-10 flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                 <span className="font-mono text-xs font-bold text-[#213F7C] bg-[#213F7C]/8 px-2 py-0.5 rounded border border-[#213F7C]/20">
                   {candidate.fileId}
                 </span>
@@ -136,17 +136,17 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
                 </span>
               </div>
 
-              <h2 className="mt-2 text-lg font-bold text-slate-900 uppercase tracking-tight">
+              <h2 className="mt-1.5 text-base sm:text-lg font-bold text-slate-900 uppercase tracking-tight truncate">
                 {candidate.name}
               </h2>
 
-              <div className="mt-1 flex items-center gap-3 text-xs text-slate-500">
+              <div className="mt-1 flex items-center gap-2 sm:gap-3 text-xs text-slate-500">
                 <div className="inline-flex items-center gap-1 font-mono-numeric font-medium text-slate-700">
                   <span>{candidate.passportNumber}</span>
                   <button
                     onClick={handleCopyPassport}
                     title="Copy passport number"
-                    className="p-1 text-slate-400 hover:text-slate-700 rounded transition-colors cursor-pointer"
+                    className="p-0.5 text-slate-400 hover:text-slate-700 rounded transition-colors cursor-pointer"
                   >
                     {copiedPassport ? (
                       <Check className="h-3 w-3 text-emerald-600" />
@@ -156,35 +156,36 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
                   </button>
                 </div>
                 <span>•</span>
-                <span>Intake: {candidate.contactDate || 'Recorded'}</span>
+                <span className="truncate">Intake: {candidate.contactDate || 'Recorded'}</span>
               </div>
             </div>
 
             <button
               onClick={onClose}
-              className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
+              className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer shrink-0"
+              aria-label="Close drawer"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
 
           {/* Body Content */}
-          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-5 space-y-4 sm:space-y-6">
             {/* Urgent Warning if Approved but Physical Passport is missing */}
             {isMissingPassportApproved && (
-              <div className="rounded-lg border border-[#C0434A]/30 bg-[#C0434A]/8 p-4">
-                <div className="flex items-start gap-3">
+              <div className="rounded-lg border border-[#C0434A]/30 bg-[#C0434A]/8 p-3.5 sm:p-4">
+                <div className="flex items-start gap-2.5 sm:gap-3">
                   <ShieldAlert className="h-5 w-5 text-[#C0434A] shrink-0 mt-0.5" />
                   <div>
                     <h4 className="text-xs font-bold text-[#C0434A]">
                       Action Required: Physical Passport Missing
                     </h4>
                     <p className="mt-1 text-xs text-slate-700 leading-relaxed">
-                      This candidate&apos;s work permit has been issued, but their original passport is not in the office. Please collect the original passport immediately for embassy visa stamping.
+                      Work permit authorized, but physical original passport is not in office vault. Collect immediately from candidate/agency for visa stamping.
                     </p>
                     <button
                       onClick={() => handleQuickToggle({ passportInHand: true })}
-                      className="mt-2.5 inline-flex items-center gap-1.5 rounded-md bg-[#C0434A] hover:bg-[#A8373E] px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer shadow-xs"
+                      className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-[#C0434A] hover:bg-[#A8373E] px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer shadow-xs"
                     >
                       <Check className="h-3.5 w-3.5" />
                       <span>Mark Passport In Hand</span>
@@ -199,53 +200,53 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
               <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
                 Milestone Progress
               </span>
-              <div className="grid grid-cols-4 gap-1.5 p-1 bg-slate-100 rounded-lg text-center">
-                <div className="p-2 rounded bg-white shadow-2xs">
-                  <div className="text-[10px] text-slate-400 font-semibold">Step 1</div>
-                  <div className="text-xs font-bold text-slate-800">Intake</div>
-                  <div className="mt-1 flex justify-center text-emerald-600">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
+              <div className="grid grid-cols-4 gap-1 p-1 bg-slate-100 rounded-lg text-center">
+                <div className="p-1.5 sm:p-2 rounded bg-white shadow-2xs">
+                  <div className="text-[9px] sm:text-[10px] text-slate-400 font-semibold">1</div>
+                  <div className="text-[11px] sm:text-xs font-bold text-slate-800 truncate">Intake</div>
+                  <div className="mt-0.5 sm:mt-1 flex justify-center text-emerald-600">
+                    <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                   </div>
                 </div>
-                <div className={`p-2 rounded ${candidate.submissionSlip ? 'bg-white shadow-2xs' : 'opacity-60'}`}>
-                  <div className="text-[10px] text-slate-400 font-semibold">Step 2</div>
-                  <div className="text-xs font-bold text-slate-800">Submitted</div>
-                  <div className="mt-1 flex justify-center text-[#213F7C]">
-                    {candidate.submissionSlip ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> : <span className="text-[10px] text-slate-400">Pending</span>}
+                <div className={`p-1.5 sm:p-2 rounded ${candidate.submissionSlip ? 'bg-white shadow-2xs' : 'opacity-60'}`}>
+                  <div className="text-[9px] sm:text-[10px] text-slate-400 font-semibold">2</div>
+                  <div className="text-[11px] sm:text-xs font-bold text-slate-800 truncate">Filed</div>
+                  <div className="mt-0.5 sm:mt-1 flex justify-center text-[#213F7C]">
+                    {candidate.submissionSlip ? <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-emerald-600" /> : <span className="text-[10px] text-slate-400">—</span>}
                   </div>
                 </div>
-                <div className={`p-2 rounded ${candidate.approval ? 'bg-white shadow-2xs' : 'opacity-60'}`}>
-                  <div className="text-[10px] text-slate-400 font-semibold">Step 3</div>
-                  <div className="text-xs font-bold text-slate-800">Approved</div>
-                  <div className="mt-1 flex justify-center text-emerald-600">
-                    {candidate.approval ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> : <span className="text-[10px] text-slate-400">Review</span>}
+                <div className={`p-1.5 sm:p-2 rounded ${candidate.approval ? 'bg-white shadow-2xs' : 'opacity-60'}`}>
+                  <div className="text-[9px] sm:text-[10px] text-slate-400 font-semibold">3</div>
+                  <div className="text-[11px] sm:text-xs font-bold text-slate-800 truncate">Permit</div>
+                  <div className="mt-0.5 sm:mt-1 flex justify-center text-emerald-600">
+                    {candidate.approval ? <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-emerald-600" /> : <span className="text-[10px] text-slate-400">—</span>}
                   </div>
                 </div>
-                <div className={`p-2 rounded ${candidate.stage === 'DEPLOYMENT_READY' ? 'bg-white shadow-2xs' : 'opacity-60'}`}>
-                  <div className="text-[10px] text-slate-400 font-semibold">Step 4</div>
-                  <div className="text-xs font-bold text-slate-800">Visa Ready</div>
-                  <div className="mt-1 flex justify-center">
-                    {candidate.stage === 'DEPLOYMENT_READY' ? <CheckCircle2 className="h-3.5 w-3.5 text-[#C0434A]" /> : <span className="text-[10px] text-slate-400">Pending</span>}
+                <div className={`p-1.5 sm:p-2 rounded ${candidate.stage === 'DEPLOYMENT_READY' ? 'bg-white shadow-2xs' : 'opacity-60'}`}>
+                  <div className="text-[9px] sm:text-[10px] text-slate-400 font-semibold">4</div>
+                  <div className="text-[11px] sm:text-xs font-bold text-slate-800 truncate">Ready</div>
+                  <div className="mt-0.5 sm:mt-1 flex justify-center">
+                    {candidate.stage === 'DEPLOYMENT_READY' ? <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[#C0434A]" /> : <span className="text-[10px] text-slate-400">—</span>}
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Operational Controls & Document Check */}
-            <div className="clean-card p-4 space-y-4">
+            <div className="clean-card p-3.5 sm:p-4 space-y-3.5 sm:space-y-4">
               <span className="text-xs font-bold text-[#213F7C] uppercase tracking-wider block border-b border-slate-100 pb-2">
                 Document Checklist & Verification
               </span>
 
               {/* Physical Passport In Office */}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <div>
-                  <div className="text-xs font-bold text-slate-800">Original Passport In Office</div>
-                  <p className="text-[11px] text-slate-500">Physical document stored in vault</p>
+                  <div className="text-xs font-bold text-slate-800">Original Passport In Vault</div>
+                  <p className="text-[11px] text-slate-500">Physical document in office</p>
                 </div>
                 <button
                   onClick={() => handleQuickToggle({ passportInHand: !candidate.passportInHand })}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-colors cursor-pointer border ${
+                  className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${
                     candidate.passportInHand
                       ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
                       : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
@@ -253,7 +254,7 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
                 >
                   {candidate.passportInHand ? (
                     <>
-                      <Check className="h-3.5 w-3.5" />
+                      <Check className="h-3.5 w-3.5 text-emerald-600" />
                       <span>In Hand</span>
                     </>
                   ) : (
@@ -263,14 +264,14 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
               </div>
 
               {/* PCC Received */}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <div>
-                  <div className="text-xs font-bold text-slate-800">Police Clearance Certificate (PCC)</div>
-                  <p className="text-[11px] text-slate-500">Ministry certified background verification</p>
+                  <div className="text-xs font-bold text-slate-800">Police Clearance (PCC)</div>
+                  <p className="text-[11px] text-slate-500">Ministry background clearance</p>
                 </div>
                 <button
                   onClick={() => handleQuickToggle({ pccReceived: !candidate.pccReceived })}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-colors cursor-pointer border ${
+                  className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${
                     candidate.pccReceived
                       ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
                       : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
@@ -278,7 +279,7 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
                 >
                   {candidate.pccReceived ? (
                     <>
-                      <Check className="h-3.5 w-3.5" />
+                      <Check className="h-3.5 w-3.5 text-emerald-600" />
                       <span>Verified</span>
                     </>
                   ) : (
@@ -288,7 +289,7 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
               </div>
 
               {/* Ministry Submission Slip */}
-              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+              <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
                 <div>
                   <div className="text-xs font-bold text-slate-800">Submission Slip</div>
                   <p className="text-[11px] text-slate-500">
@@ -304,7 +305,7 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
                         : null,
                     })
                   }
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-colors cursor-pointer border ${
+                  className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${
                     candidate.submissionSlip
                       ? 'bg-[#213F7C]/10 text-[#213F7C] border-[#213F7C]/30'
                       : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
@@ -323,11 +324,11 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
 
               {/* Work Permit Approval & City */}
               <div className="pt-2 border-t border-slate-100 space-y-2.5">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <div>
                     <div className="text-xs font-bold text-slate-800">Work Permit Approval</div>
                     <p className="text-[11px] text-slate-500">
-                      {candidate.approvalDate ? `Granted on ${candidate.approvalDate}` : 'Pending ministry clearance'}
+                      {candidate.approvalDate ? `Granted on ${candidate.approvalDate}` : 'Pending clearance'}
                     </p>
                   </div>
                   <button
@@ -340,7 +341,7 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
                         approvalCity: !candidate.approval ? candidate.approvalCity || 'Strumica' : candidate.approvalCity,
                       })
                     }
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-colors cursor-pointer border ${
+                    className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${
                       candidate.approval
                         ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
                         : 'bg-amber-50 text-amber-700 border-amber-300 hover:bg-amber-100'
@@ -360,12 +361,12 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
                 {/* City selector if approved */}
                 {candidate.approval && (
                   <div className="flex items-center gap-2 pt-1">
-                    <MapPin className="h-3.5 w-3.5 text-slate-400" />
-                    <span className="text-xs text-slate-600 font-medium">Approved Municipality:</span>
+                    <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                    <span className="text-xs text-slate-600 font-medium">Municipality:</span>
                     <select
                       value={candidate.approvalCity || 'Strumica'}
                       onChange={(e) => handleQuickToggle({ approvalCity: e.target.value })}
-                      className="rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-800 focus:border-[#213F7C] focus:outline-none cursor-pointer"
+                      className="rounded-md border border-slate-300 bg-white px-2 py-1 text-xs text-slate-800 focus:border-[#213F7C] focus:outline-none cursor-pointer"
                     >
                       {CITIES.map((c) => (
                         <option key={c} value={c}>
@@ -379,35 +380,40 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
             </div>
 
             {/* Sourcing Partner Agency Information */}
-            <div className="clean-card p-4 space-y-2.5">
-              <span className="text-xs font-bold text-[#213F7C] uppercase tracking-wider block border-b border-slate-100 pb-2">
-                Sourcing Agency Details
-              </span>
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                    <Building2 className="h-4 w-4 text-[#213F7C]" />
-                    <span>{candidate.agent?.name || 'Direct Sky Bridge Intake'}</span>
-                  </div>
-                  {candidate.agent?.location && (
-                    <div className="text-xs text-slate-500 mt-0.5">
-                      {candidate.agent.location}
-                    </div>
-                  )}
-                  {candidate.agent?.contactPerson && (
-                    <div className="text-xs text-slate-600 mt-1">
-                      <span className="text-slate-400">Coordinator: </span>
-                      {candidate.agent.contactPerson}
-                    </div>
-                  )}
-                </div>
-                {candidate.agent?.code && (
-                  <span className="font-mono text-xs font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-700 border border-slate-200">
-                    {candidate.agent.code}
+            {(() => {
+              const fullAgent = agents.find((a) => a.id === candidate.agentId);
+              return (
+                <div className="clean-card p-3.5 sm:p-4 space-y-2">
+                  <span className="text-xs font-bold text-[#213F7C] uppercase tracking-wider block border-b border-slate-100 pb-2">
+                    Sourcing Agency Details
                   </span>
-                )}
-              </div>
-            </div>
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                        <Building2 className="h-4 w-4 text-[#213F7C] shrink-0" />
+                        <span className="truncate">{candidate.agent?.name || fullAgent?.name || 'Direct Sky Bridge Intake'}</span>
+                      </div>
+                      {(candidate.agent?.location || fullAgent?.location) && (
+                        <div className="text-xs text-slate-500 mt-0.5">
+                          {candidate.agent?.location || fullAgent?.location}
+                        </div>
+                      )}
+                      {fullAgent?.contactPerson && (
+                        <div className="text-xs text-slate-600 mt-0.5">
+                          <span className="text-slate-400">Coordinator: </span>
+                          {fullAgent.contactPerson}
+                        </div>
+                      )}
+                    </div>
+                    {(candidate.agent?.code || fullAgent?.code) && (
+                      <span className="font-mono text-xs font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-700 border border-slate-200 shrink-0">
+                        {candidate.agent?.code || fullAgent?.code}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Operational Notes & Remarks */}
             <div className="space-y-2">
@@ -433,7 +439,7 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
                 <button
                   onClick={handleSaveNotes}
                   disabled={isSaving}
-                  className="flex items-center gap-1.5 rounded-md bg-[#213F7C] hover:bg-[#182F5D] px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-lg bg-[#213F7C] hover:bg-[#182F5D] px-3.5 py-1.5 text-xs font-bold text-white transition-all cursor-pointer shadow-xs disabled:opacity-50"
                 >
                   <Save className="h-3.5 w-3.5" />
                   <span>Save Notes</span>
@@ -442,11 +448,11 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
             </div>
           </div>
 
-          {/* Footer Actions */}
-          <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-3">
+          {/* Footer Actions (Responsive) */}
+          <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-t border-slate-200 bg-slate-50 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
             <button
               onClick={handleCopyWhatsAppSummary}
-              className="flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shadow-2xs"
+              className="flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shadow-2xs"
             >
               {copiedSummary ? (
                 <>
@@ -463,7 +469,7 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
 
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-md bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold transition-colors cursor-pointer text-center"
             >
               Close
             </button>

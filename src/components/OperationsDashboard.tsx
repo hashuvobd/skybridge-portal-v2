@@ -11,6 +11,7 @@ import {
   MapPin,
   Building2,
   ArrowRight,
+  Sparkles,
 } from 'lucide-react';
 import { DashboardMetrics } from '@/lib/types';
 
@@ -28,9 +29,9 @@ export default function OperationsDashboard({
   if (loading || !metrics) {
     return (
       <div className="flex min-h-[350px] items-center justify-center">
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-2.5">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#213F7C] border-t-transparent" />
-          <p className="text-xs text-slate-500 font-medium">Loading pipeline analytics...</p>
+          <p className="text-xs text-slate-500 font-medium">Loading operations analytics...</p>
         </div>
       </div>
     );
@@ -44,46 +45,48 @@ export default function OperationsDashboard({
     : 0;
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Header Overview */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+    <div className="space-y-4 sm:space-y-6 pb-12">
+      {/* Header Overview Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/90 pb-3 sm:pb-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900">
-            Operations Overview
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+            <span>Executive Insights</span>
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Tracking {metrics.totalCandidates} applicant files across 17 partner agencies for work visa clearances.
+          <p className="text-xs text-slate-500 mt-0.5">
+            Real-time pipeline monitoring across {metrics.totalCandidates} applicant files and 17 regional sourcing partners.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#C0434A]/8 px-3 py-1 text-xs font-bold text-[#C0434A] border border-[#C0434A]/25">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#C0434A]" />
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#C0434A]/8 px-2.5 sm:px-3 py-1 text-xs font-bold text-[#C0434A] border border-[#C0434A]/25">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#C0434A] animate-status-pulse" />
             21 Approvals Granted (Oct 2026)
           </span>
         </div>
       </div>
 
-      {/* 4 Core Funnel KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 4 Core Funnel KPI Cards (Responsive 2x2 grid on mobile, 4 columns on desktop) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {/* Total Candidates */}
         <div
           onClick={() => onFilterTrigger('stage', 'ALL')}
-          className="clean-card clean-card-hover p-4 cursor-pointer"
+          className="clean-card clean-card-hover p-3.5 sm:p-4 cursor-pointer"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Total Intake
             </span>
-            <Users className="h-4 w-4 text-[#213F7C]" />
+            <div className="p-1 sm:p-1.5 rounded-md bg-slate-100 text-[#213F7C]">
+              <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            </div>
           </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-slate-900 font-mono-numeric">
+          <div className="mt-2 flex items-baseline gap-1.5 sm:gap-2">
+            <span className="text-xl sm:text-2xl font-bold text-slate-900 font-mono-numeric">
               {metrics.totalCandidates}
             </span>
-            <span className="text-xs text-slate-500 font-medium">candidates</span>
+            <span className="text-[11px] sm:text-xs text-slate-500 font-medium">files</span>
           </div>
-          <p className="mt-1 text-xs text-slate-500">Master database records</p>
-          <div className="mt-3 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+          <p className="mt-0.5 text-[11px] text-slate-500 truncate">Master intake records</p>
+          <div className="mt-2.5 sm:mt-3 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
             <div className="h-full bg-[#213F7C] rounded-full" style={{ width: '100%' }} />
           </div>
         </div>
@@ -91,22 +94,24 @@ export default function OperationsDashboard({
         {/* Submitted Files */}
         <div
           onClick={() => onFilterTrigger('stage', 'SUBMITTED')}
-          className="clean-card clean-card-hover p-4 cursor-pointer"
+          className="clean-card clean-card-hover p-3.5 sm:p-4 cursor-pointer"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Submitted Files
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Submitted
             </span>
-            <Send className="h-4 w-4 text-[#213F7C]" />
+            <div className="p-1 sm:p-1.5 rounded-md bg-[#213F7C]/8 text-[#213F7C]">
+              <Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            </div>
           </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-[#213F7C] font-mono-numeric">
+          <div className="mt-2 flex items-baseline gap-1.5 sm:gap-2">
+            <span className="text-xl sm:text-2xl font-bold text-[#213F7C] font-mono-numeric">
               {metrics.submittedFiles}
             </span>
-            <span className="text-xs text-[#213F7C] font-semibold">{submissionRate}% filed</span>
+            <span className="text-[11px] sm:text-xs text-[#213F7C] font-semibold">{submissionRate}% filed</span>
           </div>
-          <p className="mt-1 text-xs text-slate-500">Submission slips issued</p>
-          <div className="mt-3 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+          <p className="mt-0.5 text-[11px] text-slate-500 truncate">Submission slips issued</p>
+          <div className="mt-2.5 sm:mt-3 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
             <div className="h-full bg-[#213F7C] rounded-full" style={{ width: `${submissionRate}%` }} />
           </div>
         </div>
@@ -114,22 +119,24 @@ export default function OperationsDashboard({
         {/* Approvals Granted */}
         <div
           onClick={() => onFilterTrigger('stage', 'APPROVED')}
-          className="clean-card clean-card-hover p-4 cursor-pointer"
+          className="clean-card clean-card-hover p-3.5 sm:p-4 cursor-pointer"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Approvals Granted
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Approved
             </span>
-            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            <div className="p-1 sm:p-1.5 rounded-md bg-emerald-50 text-emerald-700">
+              <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            </div>
           </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-emerald-700 font-mono-numeric">
+          <div className="mt-2 flex items-baseline gap-1.5 sm:gap-2">
+            <span className="text-xl sm:text-2xl font-bold text-emerald-700 font-mono-numeric">
               {metrics.approvalsGranted}
             </span>
-            <span className="text-xs text-emerald-600 font-semibold">{approvalRate}% conversion</span>
+            <span className="text-[11px] sm:text-xs text-emerald-600 font-semibold">{approvalRate}% conv</span>
           </div>
-          <p className="mt-1 text-xs text-slate-500">Work permits authorized</p>
-          <div className="mt-3 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+          <p className="mt-0.5 text-[11px] text-slate-500 truncate">Work permits cleared</p>
+          <div className="mt-2.5 sm:mt-3 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
             <div className="h-full bg-emerald-600 rounded-full" style={{ width: `${approvalRate}%` }} />
           </div>
         </div>
@@ -137,22 +144,24 @@ export default function OperationsDashboard({
         {/* In Review / Pending */}
         <div
           onClick={() => onFilterTrigger('urgent', 'pending_30_days')}
-          className="clean-card clean-card-hover p-4 cursor-pointer"
+          className="clean-card clean-card-hover p-3.5 sm:p-4 cursor-pointer"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Under Review
             </span>
-            <Clock className="h-4 w-4 text-amber-500" />
+            <div className="p-1 sm:p-1.5 rounded-md bg-amber-50 text-amber-700">
+              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            </div>
           </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-slate-900 font-mono-numeric">
+          <div className="mt-2 flex items-baseline gap-1.5 sm:gap-2">
+            <span className="text-xl sm:text-2xl font-bold text-slate-900 font-mono-numeric">
               {metrics.inReview}
             </span>
-            <span className="text-xs text-amber-600 font-semibold">in process</span>
+            <span className="text-[11px] sm:text-xs text-amber-600 font-semibold">in process</span>
           </div>
-          <p className="mt-1 text-xs text-slate-500">Awaiting clearance decision</p>
-          <div className="mt-3 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+          <p className="mt-0.5 text-[11px] text-slate-500 truncate">Awaiting ministry decision</p>
+          <div className="mt-2.5 sm:mt-3 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
             <div
               className="h-full bg-amber-500 rounded-full"
               style={{ width: `${Math.round((metrics.inReview / metrics.totalCandidates) * 100)}%` }}
@@ -161,18 +170,23 @@ export default function OperationsDashboard({
         </div>
       </div>
 
-      {/* Action Items / Attention Alerts */}
-      <div className="clean-card p-4">
-        <h2 className="text-xs font-bold text-[#213F7C] uppercase tracking-wider mb-3">
-          Required Actions & Verification
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      {/* Action Items / Operational Attention Alerts */}
+      <div className="clean-card p-3.5 sm:p-4">
+        <div className="flex items-center justify-between mb-2.5 sm:mb-3">
+          <h2 className="text-xs font-bold text-[#213F7C] uppercase tracking-wider flex items-center gap-1.5">
+            <AlertCircle className="h-3.5 w-3.5 text-[#C0434A]" />
+            <span>Required Actions & Verification Alerts</span>
+          </h2>
+          <span className="text-[11px] text-slate-500 font-medium hidden sm:inline">Tap to inspect files</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-3">
           {/* Missing Passports for Approved (using #C0434A) */}
           <div
             onClick={() => onFilterTrigger('urgent', 'missing_passport_approved')}
-            className="flex items-start gap-3 p-3 rounded-lg border border-[#C0434A]/30 bg-[#C0434A]/5 hover:bg-[#C0434A]/10 transition-colors cursor-pointer"
+            className="flex items-start gap-3 p-3 rounded-lg border border-[#C0434A]/30 bg-[#C0434A]/6 hover:bg-[#C0434A]/10 transition-colors cursor-pointer"
           >
-            <AlertCircle className="h-4 w-4 text-[#C0434A] shrink-0 mt-0.5" />
+            <AlertCircle className="h-4 w-4 text-[#C0434A] shrink-0 mt-0.5 animate-status-pulse" />
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-[#C0434A]">Missing Passports</span>
@@ -181,7 +195,7 @@ export default function OperationsDashboard({
                 </span>
               </div>
               <p className="text-[11px] text-slate-600 mt-1">
-                Approved candidates needing physical passport collection.
+                Approved candidates needing physical passport collection from candidate.
               </p>
             </div>
           </div>
@@ -199,8 +213,8 @@ export default function OperationsDashboard({
                   {metrics.missingPccApproved} files
                 </span>
               </div>
-              <p className="text-[11px] text-amber-700 mt-1">
-                Approved candidates pending police clearance verification.
+              <p className="text-[11px] text-amber-800 mt-1">
+                Approved candidates pending Police Clearance Certificate verification.
               </p>
             </div>
           </div>
@@ -227,20 +241,20 @@ export default function OperationsDashboard({
       </div>
 
       {/* Analytics Breakdown Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Municipalities & Destination Regions */}
-        <div className="clean-card p-5">
+        <div className="clean-card p-4 sm:p-5">
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-[#213F7C]" />
               <h3 className="text-xs font-bold text-[#213F7C] uppercase tracking-wider">
-                Approved Municipalities & Regions
+                Approved Municipalities
               </h3>
             </div>
             <span className="text-xs text-slate-500 font-medium">21 Total Clearances</span>
           </div>
 
-          <div className="mt-4 space-y-3">
+          <div className="mt-3.5 space-y-2.5">
             {metrics.cityBreakdown.map((item) => {
               const pct = Math.round((item.approvals / metrics.approvalsGranted) * 100) || 0;
               return (
@@ -267,7 +281,7 @@ export default function OperationsDashboard({
         </div>
 
         {/* Partner Agency Leaderboard */}
-        <div className="clean-card p-5">
+        <div className="clean-card p-4 sm:p-5">
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div className="flex items-center gap-2">
               <Building2 className="h-4 w-4 text-[#213F7C]" />
@@ -284,21 +298,21 @@ export default function OperationsDashboard({
             </button>
           </div>
 
-          <div className="mt-3 divide-y divide-slate-100">
+          <div className="mt-2.5 divide-y divide-slate-100">
             {metrics.agentLeaderboard.slice(0, 6).map((agent, i) => (
               <div
                 key={agent.agentName}
                 onClick={() => onFilterTrigger('agentName', agent.agentName)}
-                className="flex items-center justify-between py-2.5 hover:bg-slate-50/80 px-2 rounded-md transition-colors cursor-pointer"
+                className="flex items-center justify-between py-2 sm:py-2.5 hover:bg-slate-50/80 px-2 rounded-md transition-colors cursor-pointer"
               >
-                <div className="flex items-center gap-2.5">
-                  <span className="font-mono text-xs text-slate-400 w-4">{i + 1}</span>
-                  <span className="text-xs font-semibold text-slate-800">{agent.agentName}</span>
+                <div className="flex items-center gap-2 min-w-0 pr-2">
+                  <span className="font-mono text-xs text-slate-400 w-3.5 shrink-0">{i + 1}</span>
+                  <span className="text-xs font-semibold text-slate-800 truncate">{agent.agentName}</span>
                 </div>
-                <div className="flex items-center gap-4 text-xs font-mono-numeric">
-                  <span className="text-slate-500">{agent.total} intake</span>
+                <div className="flex items-center gap-2 sm:gap-4 text-[11px] sm:text-xs font-mono-numeric shrink-0">
+                  <span className="text-slate-500 hidden xs:inline">{agent.total} intake</span>
                   <span className="text-[#213F7C] font-medium">{agent.submitted} filed</span>
-                  <span className="font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                  <span className="font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs">
                     {agent.approved} approved
                   </span>
                 </div>

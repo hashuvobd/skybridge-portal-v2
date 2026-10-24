@@ -87,15 +87,15 @@ export default function AddCandidateModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="clean-card w-full max-w-lg p-6 shadow-2xl bg-white max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
-          <div className="flex items-center gap-2">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="clean-card w-full max-w-lg p-4 sm:p-6 shadow-2xl bg-white max-h-[92vh] overflow-y-auto">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-3.5 sm:mb-4">
+          <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#213F7C]/10 text-[#213F7C]">
               <UserPlus className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-slate-900">Add New Candidate</h2>
+              <h2 className="text-sm font-bold text-slate-900">Add Candidate File</h2>
               <p className="text-[11px] text-slate-500">Manual candidate intake for visa processing</p>
             </div>
           </div>
@@ -108,13 +108,13 @@ export default function AddCandidateModal({
         </div>
 
         {errorMsg && (
-          <div className="mb-4 flex items-center gap-2 rounded-md bg-[#C0434A]/10 border border-[#C0434A]/30 p-2.5 text-xs text-[#C0434A]">
+          <div className="mb-3.5 flex items-center gap-2 rounded-lg bg-[#C0434A]/10 border border-[#C0434A]/30 p-2.5 text-xs text-[#C0434A]">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{errorMsg}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+        <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
           {/* Candidate Name */}
           <div>
             <label className="block font-semibold text-slate-700 mb-1">
@@ -125,7 +125,7 @@ export default function AddCandidateModal({
               placeholder="e.g. MOHAMMAD RAHMAN"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none uppercase"
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none uppercase text-xs"
               required
             />
           </div>
@@ -141,20 +141,20 @@ export default function AddCandidateModal({
                 placeholder="e.g. A09578491"
                 value={passportNumber}
                 onChange={(e) => setPassportNumber(e.target.value)}
-                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none font-mono-numeric uppercase"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none font-mono-numeric uppercase text-xs"
                 required
               />
             </div>
             <div>
               <label className="block font-semibold text-slate-700 mb-1">
-                Contact Intake Date
+                Intake Date
               </label>
               <input
                 type="text"
                 placeholder="DD.MM.YYYY"
                 value={contactDate}
                 onChange={(e) => setContactDate(e.target.value)}
-                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none font-mono-numeric"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none font-mono-numeric text-xs"
               />
             </div>
           </div>
@@ -167,7 +167,7 @@ export default function AddCandidateModal({
             <select
               value={agentId}
               onChange={(e) => setAgentId(e.target.value)}
-              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none cursor-pointer"
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none cursor-pointer text-xs"
               required
             >
               <option value="">Select an agency...</option>
@@ -180,11 +180,11 @@ export default function AddCandidateModal({
           </div>
 
           {/* Document Verification Checkboxes */}
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-2.5">
+          <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-3 space-y-2">
             <span className="block font-bold text-slate-700 text-[11px] uppercase tracking-wider">
               Document Checklist
             </span>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -192,7 +192,7 @@ export default function AddCandidateModal({
                   onChange={(e) => setPassportInHand(e.target.checked)}
                   className="rounded border-slate-300 accent-[#213F7C] text-[#213F7C] focus:ring-[#213F7C] cursor-pointer"
                 />
-                <span className="text-slate-800">Physical Passport In Office</span>
+                <span className="text-slate-800">Original Passport In Office</span>
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer">
@@ -208,7 +208,7 @@ export default function AddCandidateModal({
           </div>
 
           {/* Submission Slip Filed? */}
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-2">
+          <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-3 space-y-2">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -216,11 +216,11 @@ export default function AddCandidateModal({
                 onChange={(e) => setSubmissionSlip(e.target.checked)}
                 className="rounded border-slate-300 accent-[#213F7C] text-[#213F7C] focus:ring-[#213F7C] cursor-pointer"
               />
-              <span className="font-semibold text-slate-800">Already filed with Ministry / Immigration (Submission Slip)</span>
+              <span className="font-semibold text-slate-800">Submission Slip already filed</span>
             </label>
 
             {submissionSlip && (
-              <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
                 <div>
                   <label className="block text-[11px] text-slate-600 mb-1">Submission Date</label>
                   <input
@@ -228,7 +228,7 @@ export default function AddCandidateModal({
                     placeholder="DD.MM.YYYY"
                     value={submissionDate}
                     onChange={(e) => setSubmissionDate(e.target.value)}
-                    className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-slate-900 font-mono-numeric"
+                    className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-slate-900 font-mono-numeric text-xs"
                   />
                 </div>
                 <div>
@@ -236,7 +236,7 @@ export default function AddCandidateModal({
                   <select
                     value={approvalCity}
                     onChange={(e) => setApprovalCity(e.target.value)}
-                    className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-slate-900 cursor-pointer"
+                    className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-slate-900 cursor-pointer text-xs"
                   >
                     {CITIES.map((c) => (
                       <option key={c} value={c}>
@@ -259,7 +259,7 @@ export default function AddCandidateModal({
               placeholder="e.g. Medical pending, second contact number..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none"
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none text-xs"
             />
           </div>
 
@@ -268,14 +268,14 @@ export default function AddCandidateModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-2 rounded-md border border-slate-300 bg-white text-slate-700 font-medium hover:bg-slate-50 transition-colors cursor-pointer"
+              className="px-3.5 py-2 rounded-lg border border-slate-300 bg-white text-slate-700 font-medium hover:bg-slate-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 rounded-md bg-[#C0434A] hover:bg-[#A8373E] text-white font-bold transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
+              className="px-4 py-2 rounded-lg bg-[#C0434A] hover:bg-[#A8373E] text-white font-bold transition-all disabled:opacity-50 cursor-pointer shadow-xs"
             >
               {isSubmitting ? 'Saving...' : 'Add Candidate'}
             </button>
