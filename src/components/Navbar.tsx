@@ -4,10 +4,10 @@ import React from 'react';
 import {
   LayoutDashboard,
   Users,
-  KanbanSquare,
   Building2,
   Plus,
   Shield,
+  BarChart3,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -32,7 +32,7 @@ export default function Navbar({
         <div className="flex items-center shrink-0 z-10">
           <div
             className="flex items-center cursor-pointer select-none"
-            onClick={() => onViewChange('dashboard')}
+            onClick={() => onViewChange('candidates')}
           >
             <img
               src="/logo.png"
@@ -43,43 +43,37 @@ export default function Navbar({
         </div>
 
         {/* Centered Navigation Tabs */}
-        <nav className="hidden md:flex items-center gap-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <nav className="hidden md:flex items-center gap-1.5 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          {/* Operations Desk */}
+          <button
+            onClick={() => onViewChange('candidates')}
+            className={`flex items-center gap-2 rounded-md px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
+              currentView === 'candidates' || currentView === 'kanban'
+                ? 'bg-[#213F7C] text-white shadow-xs font-bold'
+                : 'text-slate-600 hover:text-[#213F7C] hover:bg-slate-50'
+            }`}
+          >
+            <LayoutDashboard className={`h-4 w-4 ${currentView === 'candidates' || currentView === 'kanban' ? 'text-white' : 'text-slate-500'}`} />
+            <span>Operations Desk</span>
+          </button>
+
+          {/* Executive Insights */}
           <button
             onClick={() => onViewChange('dashboard')}
-            className={`flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold transition-colors cursor-pointer ${
+            className={`flex items-center gap-2 rounded-md px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
               currentView === 'dashboard'
                 ? 'bg-[#213F7C] text-white shadow-xs font-bold'
                 : 'text-slate-600 hover:text-[#213F7C] hover:bg-slate-50'
             }`}
           >
-            <LayoutDashboard className={`h-4 w-4 ${currentView === 'dashboard' ? 'text-white' : 'text-slate-500'}`} />
-            <span>Dashboard</span>
+            <BarChart3 className={`h-4 w-4 ${currentView === 'dashboard' ? 'text-white' : 'text-slate-500'}`} />
+            <span>Executive Insights</span>
           </button>
-          <button
-            onClick={() => onViewChange('candidates')}
-            className={`flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold transition-colors cursor-pointer ${
-              currentView === 'candidates'
-                ? 'bg-[#213F7C] text-white shadow-xs font-bold'
-                : 'text-slate-600 hover:text-[#213F7C] hover:bg-slate-50'
-            }`}
-          >
-            <Users className={`h-4 w-4 ${currentView === 'candidates' ? 'text-white' : 'text-slate-500'}`} />
-            <span>Candidates</span>
-          </button>
-          <button
-            onClick={() => onViewChange('kanban')}
-            className={`flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold transition-colors cursor-pointer ${
-              currentView === 'kanban'
-                ? 'bg-[#213F7C] text-white shadow-xs font-bold'
-                : 'text-slate-600 hover:text-[#213F7C] hover:bg-slate-50'
-            }`}
-          >
-            <KanbanSquare className={`h-4 w-4 ${currentView === 'kanban' ? 'text-white' : 'text-slate-500'}`} />
-            <span>Pipeline Board</span>
-          </button>
+
+          {/* Partner Agencies */}
           <button
             onClick={() => onViewChange('agents')}
-            className={`flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold transition-colors cursor-pointer ${
+            className={`flex items-center gap-2 rounded-md px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
               currentView === 'agents'
                 ? 'bg-[#213F7C] text-white shadow-xs font-bold'
                 : 'text-slate-600 hover:text-[#213F7C] hover:bg-slate-50'
@@ -123,6 +117,17 @@ export default function Navbar({
       {/* Mobile Centered Sub-Nav for Screens < 768px */}
       <div className="md:hidden border-t border-slate-100 bg-slate-50/70 px-2 py-1.5 flex items-center justify-center gap-1 overflow-x-auto">
         <button
+          onClick={() => onViewChange('candidates')}
+          className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors cursor-pointer shrink-0 ${
+            currentView === 'candidates' || currentView === 'kanban'
+              ? 'bg-[#213F7C] text-white shadow-2xs font-bold'
+              : 'text-slate-600 hover:text-[#213F7C]'
+          }`}
+        >
+          <LayoutDashboard className="h-3 w-3" />
+          <span>Operations Desk</span>
+        </button>
+        <button
           onClick={() => onViewChange('dashboard')}
           className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors cursor-pointer shrink-0 ${
             currentView === 'dashboard'
@@ -130,30 +135,8 @@ export default function Navbar({
               : 'text-slate-600 hover:text-[#213F7C]'
           }`}
         >
-          <LayoutDashboard className="h-3 w-3" />
-          <span>Dashboard</span>
-        </button>
-        <button
-          onClick={() => onViewChange('candidates')}
-          className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors cursor-pointer shrink-0 ${
-            currentView === 'candidates'
-              ? 'bg-[#213F7C] text-white shadow-2xs font-bold'
-              : 'text-slate-600 hover:text-[#213F7C]'
-          }`}
-        >
-          <Users className="h-3 w-3" />
-          <span>Candidates</span>
-        </button>
-        <button
-          onClick={() => onViewChange('kanban')}
-          className={`flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors cursor-pointer shrink-0 ${
-            currentView === 'kanban'
-              ? 'bg-[#213F7C] text-white shadow-2xs font-bold'
-              : 'text-slate-600 hover:text-[#213F7C]'
-          }`}
-        >
-          <KanbanSquare className="h-3 w-3" />
-          <span>Pipeline</span>
+          <BarChart3 className="h-3 w-3" />
+          <span>Insights</span>
         </button>
         <button
           onClick={() => onViewChange('agents')}

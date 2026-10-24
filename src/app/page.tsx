@@ -7,17 +7,20 @@ import CandidateTable from '@/components/CandidateTable';
 import CandidateKanban from '@/components/CandidateKanban';
 import AgentDirectory from '@/components/AgentDirectory';
 import AddCandidateModal from '@/components/AddCandidateModal';
+import CandidateDrawer from '@/components/CandidateDrawer';
 import BatchActionBar from '@/components/BatchActionBar';
 import { CandidateRecord, AgentRecord, DashboardMetrics } from '@/lib/types';
 import { CheckCircle2, AlertCircle, Table as TableIcon, KanbanSquare } from 'lucide-react';
 
 export default function Home() {
-  const [currentView, setCurrentView] = useState<'dashboard' | 'candidates' | 'kanban' | 'agents'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'candidates' | 'kanban' | 'agents'>('candidates');
   const [candidates, setCandidates] = useState<CandidateRecord[]>([]);
   const [agents, setAgents] = useState<AgentRecord[]>([]);
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
+  const [selectedCandidate, setSelectedCandidate] = useState<CandidateRecord | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [userRole, setUserRole] = useState<'ADMIN' | 'AGENT'>('ADMIN');
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
@@ -95,6 +98,9 @@ export default function Home() {
     try {
       setCandidates((prev) =>
         prev.map((c) => (c.id === id ? { ...c, ...updates } : c))
+      );
+      setSelectedCandidate((prev) =>
+        prev && prev.id === id ? { ...prev, ...updates } : prev
       );
 
       const res = await fetch(`/api/candidates/${id}`, {
@@ -265,17 +271,20 @@ export default function Home() {
       <main className="flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-6">
         {/* View Header with Sub-tabs if on candidates or kanban */}
         {(currentView === 'candidates' || currentView === 'kanban') && (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 border-b border-slate-200 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-                Candidate Directory
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+                <span>Operations Desk</span>
+                <span className="rounded-md bg-[#213F7C]/8 px-2.5 py-0.5 text-xs font-bold text-[#213F7C] border border-[#213F7C]/20 font-mono-numeric">
+                  {candidates.length} Candidate Files
+                </span>
               </h1>
               <p className="text-xs text-slate-500 mt-0.5">
-                Manage candidate files, submission slips, and work permit approvals.
+                Central operations desk • Instant candidate lookup, milestone tracking, and document verification.
               </p>
             </div>
 
-            {/* View Mode Toggle: Spreadsheet vs Pipeline Board */}
+            {/* View Mode Toggle: Table View vs Pipeline Board */}
             <div className="flex items-center gap-1 rounded-md bg-slate-100 p-1 border border-slate-200">
               <button
                 onClick={() => setCurrentView('candidates')}
@@ -286,7 +295,7 @@ export default function Home() {
                 }`}
               >
                 <TableIcon className="h-3.5 w-3.5" />
-                <span>Spreadsheet</span>
+                <span>Table View</span>
               </button>
               <button
                 onClick={() => setCurrentView('kanban')}
@@ -331,6 +340,12 @@ export default function Home() {
             onCityChange={setSelectedCity}
             selectedStage={selectedStage}
             onStageChange={setSelectedStage}
+            onOpenDrawer={(c) => {
+              setSelectedCandidate(c);
+              setIsDrawerOpen(true);
+            }}
+            urgentFilter={urgentFilter}
+            onUrgentFilterChange={setUrgentFilter}
           />
         )}
 
@@ -365,6 +380,15 @@ export default function Home() {
         onClose={() => setIsAddModalOpen(false)}
         agents={agents}
         onAddCandidate={handleAddCandidate}
+      />
+
+      {/* Slide-Over Candidate File Inspector Drawer */}
+      <CandidateDrawer
+        candidate={selectedCandidate}
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        onUpdateCandidate={handleUpdateCandidate}
+        agents={agents}
       />
     </div>
   );
