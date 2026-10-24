@@ -1,30 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { getExportCandidates } from '@/lib/dataService';
 import * as XLSX from 'xlsx';
 
 export async function POST(request: NextRequest) {
   try {
     const { agentId, city, stage, search } = await request.json().catch(() => ({}));
 
-    const where: any = {};
-    if (agentId && agentId !== 'all') where.agentId = agentId;
-    if (city && city !== 'all') where.approvalCity = { contains: city, mode: 'insensitive' };
-    if (stage && stage !== 'ALL') where.stage = stage;
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { passportNumber: { contains: search, mode: 'insensitive' } },
-        { fileId: { contains: search, mode: 'insensitive' } },
-      ];
-    }
-
-    const candidates = await prisma.candidate.findMany({
-      where,
-      include: {
-        agent: true,
-      },
-      orderBy: { sl: 'asc' },
+    const result = await getExportCandidates({
+      agentId,
+      city,
+      stage,
+      search,
     });
+
+    const candidates = result.candidates;
 
     // Transform into clean tabular Excel rows
     const excelRows = candidates.map((c) => ({
@@ -33,7 +22,7 @@ export async function POST(request: NextRequest) {
       'Candidate Name': c.name,
       'Passport Number': c.passportNumber,
       'Contact Date': c.contactDate || '',
-      'Sourcing Agent': c.agent?.name || 'Direct',
+      'Sourcing Agent': c.agent?.name || 'Direct SkyBridge',
       'Submission Slip': c.submissionSlip ? 'Yes' : 'No',
       'Submission Date': c.submissionDate || '',
       'Approval Status': c.approval ? 'Approved' : 'Pending',
@@ -57,7 +46,7 @@ export async function POST(request: NextRequest) {
         'Content-Disposition': `attachment; filename="SkyBridge_Candidates_Export_${Date.now()}.xlsx"`,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error exporting excel:', error);
     return NextResponse.json(
       { success: false, error: 'Excel generation failed' },

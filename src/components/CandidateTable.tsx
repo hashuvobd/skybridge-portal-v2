@@ -198,9 +198,19 @@ export default function CandidateTable({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [justUpdatedId, setJustUpdatedId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [mobileViewMode, setMobileViewMode] = useState<'cards' | 'table'>('cards');
+  const [pageSize, setPageSize] = useState<number>(25);
+  const [sortField, setSortField] = useState<'fileId' | 'name' | 'agent' | 'stage'>('fileId');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const pageSize = 25;
+
+  const handleSort = (field: 'fileId' | 'name' | 'agent' | 'stage') => {
+    if (sortField === field) {
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
 
   // Keyboard shortcut: '/' focuses search, Escape clears
   useEffect(() => {
@@ -260,16 +270,31 @@ export default function CandidateTable({
     })),
   ], []);
 
-  // Filter candidates based on active quick tab
+  // Filter & sort candidates based on active quick tab and sorting settings
   const filteredCandidates = useMemo(() => {
+    let list = [...candidates];
     if (urgentFilter === 'missing_passport_approved') {
-      return candidates.filter((c) => c.approval && !c.passportInHand);
+      list = list.filter((c) => c.approval && !c.passportInHand);
+    } else if (urgentFilter === 'missing_pcc_approved') {
+      list = list.filter((c) => c.approval && !c.pccReceived);
     }
-    if (urgentFilter === 'missing_pcc_approved') {
-      return candidates.filter((c) => c.approval && !c.pccReceived);
-    }
-    return candidates;
-  }, [candidates, urgentFilter]);
+
+    list.sort((a, b) => {
+      let comp = 0;
+      if (sortField === 'fileId') {
+        comp = (a.fileId || '').localeCompare(b.fileId || '', undefined, { numeric: true });
+      } else if (sortField === 'name') {
+        comp = a.name.localeCompare(b.name);
+      } else if (sortField === 'agent') {
+        comp = (a.agent?.name || '').localeCompare(b.agent?.name || '');
+      } else if (sortField === 'stage') {
+        comp = a.stage.localeCompare(b.stage);
+      }
+      return sortDirection === 'asc' ? comp : -comp;
+    });
+
+    return list;
+  }, [candidates, urgentFilter, sortField, sortDirection]);
 
   const totalPages = Math.ceil(filteredCandidates.length / pageSize) || 1;
   const startIndex = (currentPage - 1) * pageSize;
@@ -641,32 +666,6 @@ export default function CandidateTable({
               )}
 
               <div className="flex items-center gap-2 ml-auto sm:ml-0">
-                {/* Mobile View Switcher (Cards vs Table) */}
-                <div className="flex md:hidden items-center rounded-lg border border-slate-300 bg-slate-100 p-0.5 shrink-0">
-                  <button
-                    onClick={() => setMobileViewMode('cards')}
-                    className={`p-1 rounded text-xs transition-colors ${
-                      mobileViewMode === 'cards'
-                        ? 'bg-white text-[#213F7C] shadow-2xs font-bold'
-                        : 'text-slate-500'
-                    }`}
-                    title="Card View"
-                  >
-                    <LayoutGrid className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    onClick={() => setMobileViewMode('table')}
-                    className={`p-1 rounded text-xs transition-colors ${
-                      mobileViewMode === 'table'
-                        ? 'bg-white text-[#213F7C] shadow-2xs font-bold'
-                        : 'text-slate-500'
-                    }`}
-                    title="Table View"
-                  >
-                    <TableIcon className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-
                 {/* Export Excel Button */}
                 <button
                   onClick={onExportExcel}
@@ -682,8 +681,8 @@ export default function CandidateTable({
         </div>
       </div>
 
-      {/* 3. MOBILE RESPONSIVE CARDS VIEW (Displayed on mobile screens when mode is 'cards') */}
-      <div className={`md:hidden ${mobileViewMode === 'cards' ? 'block' : 'hidden'} space-y-2.5`}>
+      {/* 3. MOBILE RESPONSIVE CARDS VIEW (Clean, zero horizontal scroll cards on mobile) */}
+      <div className="md:hidden space-y-3">
         {loading ? (
           <div className="clean-card p-8 text-center text-slate-500">
             <div className="flex flex-col items-center justify-center gap-2">
@@ -715,43 +714,25 @@ export default function CandidateTable({
                   isSelected ? 'border-[#213F7C] bg-[#213F7C]/4 ring-1 ring-[#213F7C]' : ''
                 }`}
               >
-                {/* Header: Name, File ID, Status */}
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={(e) => {
-                          e.stopPropagation();
-                          onToggleSelect(c.id);
-                        }}
-                        className="rounded border-slate-300 accent-[#213F7C] h-4 w-4"
-                      />
-                      <h4 className="font-bold text-slate-900 text-xs sm:text-sm uppercase truncate">
-                        {c.name}
-                      </h4>
-                      {isUrgentMissingPassport && (
-                        <span
-                          title="Missing physical passport"
-                          className="text-[#C0434A] animate-status-pulse shrink-0"
-                        >
-                          <AlertTriangle className="h-3.5 w-3.5" />
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-500">
-                      <span className="font-mono-numeric font-semibold text-slate-700 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200">
-                        {c.fileId}
-                      </span>
-                      <span className="truncate">{c.agent?.name || 'Direct Agency'}</span>
-                    </div>
+                {/* Header: Checkbox, File ID, Stage Pill (No serial number) */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        onToggleSelect(c.id);
+                      }}
+                      className="rounded border-slate-300 accent-[#213F7C] h-4 w-4 cursor-pointer"
+                    />
+                    <span className="font-mono text-xs font-bold text-[#213F7C] bg-[#213F7C]/8 px-2 py-0.5 rounded border border-[#213F7C]/20 tracking-wide">
+                      {c.fileId}
+                    </span>
                   </div>
 
-                  {/* Stage Pill */}
                   <span
-                    className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border ${
+                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border ${
                       c.stage === 'DEPLOYMENT_READY'
                         ? 'bg-[#C0434A]/10 text-[#C0434A] border-[#C0434A]/25'
                         : c.stage === 'APPROVED'
@@ -772,10 +753,26 @@ export default function CandidateTable({
                   </span>
                 </div>
 
-                {/* Passport & Details Row */}
-                <div className="flex items-center justify-between border-t border-slate-100 mt-2.5 pt-2 text-xs">
-                  <div className="flex items-center gap-1.5 font-mono-numeric">
-                    <span className="text-[11px] font-medium text-slate-600 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                {/* Candidate Name & Urgent Alert */}
+                <div className="mt-2.5 flex items-start justify-between gap-2">
+                  <h4 className="font-bold text-slate-900 text-sm uppercase truncate">
+                    {c.name}
+                  </h4>
+                  {isUrgentMissingPassport && (
+                    <span
+                      title="Missing physical passport"
+                      className="text-[#C0434A] text-[10px] font-bold flex items-center gap-1 shrink-0 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 animate-status-pulse"
+                    >
+                      <AlertTriangle className="h-3 w-3" />
+                      Vault Missing
+                    </span>
+                  )}
+                </div>
+
+                {/* Passport & Sourcing Info */}
+                <div className="flex flex-wrap items-center justify-between gap-2 mt-2 pt-2 border-t border-slate-100 text-xs">
+                  <div className="flex items-center gap-1 font-mono">
+                    <span className="text-[11px] font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                       {c.passportNumber}
                     </span>
                     <button
@@ -790,70 +787,118 @@ export default function CandidateTable({
                       )}
                     </button>
                   </div>
-
-                  {c.approvalCity && (
-                    <span className="inline-flex items-center gap-1 text-[11px] text-slate-600">
-                      <MapPin className="h-3 w-3 text-slate-400" />
-                      {c.approvalCity}
-                    </span>
-                  )}
+                  <div className="text-[11px] text-slate-500 truncate max-w-[150px]">
+                    {c.agent?.name || 'Direct SkyBridge'}
+                  </div>
                 </div>
 
-                {/* Fast Action Toggle Chips for Mobile */}
-                <div className="flex items-center justify-between border-t border-slate-100 mt-2 pt-2 gap-2">
-                  <div className="flex items-center gap-1.5">
-                    {/* Submission Slip Chip */}
-                    <button
-                      onClick={(e) =>
-                        handleCellUpdate(
-                          c.id,
-                          {
-                            submissionSlip: !c.submissionSlip,
-                            submissionDate: !c.submissionSlip
-                              ? new Date().toLocaleDateString('en-GB')
-                              : null,
-                          },
-                          e
-                        )
-                      }
-                      className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold border ${
-                        c.submissionSlip
-                          ? 'bg-[#213F7C]/8 text-[#213F7C] border-[#213F7C]/20'
-                          : 'bg-slate-50 text-slate-500 border-slate-200'
-                      }`}
-                    >
-                      <Send className="h-2.5 w-2.5" />
-                      <span>{c.submissionSlip ? 'Filed' : 'Slip'}</span>
-                    </button>
+                {/* Destination City Dropdown */}
+                <div className="mt-2 flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                  <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
+                  <select
+                    value={c.approvalCity || ''}
+                    onChange={(e) =>
+                      onUpdateCandidate(c.id, { approvalCity: e.target.value })
+                    }
+                    className="flex-1 rounded border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 focus:outline-none focus:border-[#213F7C]"
+                  >
+                    <option value="">Unassigned Municipality</option>
+                    {CITIES.map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                    {/* Work Permit Approval Chip */}
-                    <button
-                      onClick={(e) =>
-                        handleCellUpdate(
-                          c.id,
-                          {
-                            approval: !c.approval,
-                            approvalDate: !c.approval
-                              ? new Date().toLocaleDateString('en-GB')
-                              : null,
-                            approvalCity: !c.approval ? c.approvalCity || 'Strumica' : c.approvalCity,
-                          },
-                          e
-                        )
-                      }
-                      className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold border ${
-                        c.approval
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : 'bg-slate-50 text-slate-500 border-slate-200'
-                      }`}
-                    >
-                      <CheckCircle2 className="h-2.5 w-2.5" />
-                      <span>{c.approval ? 'Permit' : 'Permit'}</span>
-                    </button>
-                  </div>
+                {/* 4 Interactive Milestones (Slip, Permit, Vault Passport, PCC) */}
+                <div className="grid grid-cols-2 gap-1.5 mt-2.5 pt-2 border-t border-slate-100" onClick={(e) => e.stopPropagation()}>
+                  {/* Submission Slip */}
+                  <button
+                    onClick={(e) =>
+                      handleCellUpdate(
+                        c.id,
+                        {
+                          submissionSlip: !c.submissionSlip,
+                          submissionDate: !c.submissionSlip
+                            ? new Date().toLocaleDateString('en-GB')
+                            : null,
+                        },
+                        e
+                      )
+                    }
+                    className={`flex items-center justify-between px-2 py-1 rounded text-[11px] font-semibold border ${
+                      c.submissionSlip
+                        ? 'bg-[#213F7C]/8 text-[#213F7C] border-[#213F7C]/20'
+                        : 'bg-slate-50 text-slate-500 border-slate-200'
+                    }`}
+                  >
+                    <span>Slip: {c.submissionSlip ? 'Filed' : 'Pending'}</span>
+                    {c.submissionSlip ? <Check className="h-3 w-3 stroke-[2.5]" /> : null}
+                  </button>
 
-                  <span className="text-[11px] font-semibold text-[#213F7C] flex items-center gap-0.5">
-                    Open File <ChevronRight className="h-3 w-3" />
+                  {/* Work Permit Approval */}
+                  <button
+                    onClick={(e) =>
+                      handleCellUpdate(
+                        c.id,
+                        {
+                          approval: !c.approval,
+                          approvalDate: !c.approval
+                            ? new Date().toLocaleDateString('en-GB')
+                            : null,
+                          approvalCity: !c.approval ? c.approvalCity || 'Strumica' : c.approvalCity,
+                        },
+                        e
+                      )
+                    }
+                    className={`flex items-center justify-between px-2 py-1 rounded text-[11px] font-semibold border ${
+                      c.approval
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-amber-50 text-amber-700 border-amber-200'
+                    }`}
+                  >
+                    <span>Permit: {c.approval ? 'Approved' : 'Review'}</span>
+                    {c.approval ? <CheckCircle2 className="h-3 w-3 text-emerald-600" /> : null}
+                  </button>
+
+                  {/* Vault Passport */}
+                  <button
+                    onClick={(e) =>
+                      handleCellUpdate(c.id, { passportInHand: !c.passportInHand }, e)
+                    }
+                    className={`flex items-center justify-between px-2 py-1 rounded text-[11px] font-semibold border ${
+                      c.passportInHand
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : c.approval
+                        ? 'bg-[#C0434A]/10 text-[#C0434A] border-[#C0434A]/25 font-bold'
+                        : 'bg-slate-50 text-slate-500 border-slate-200'
+                    }`}
+                  >
+                    <span>Vault: {c.passportInHand ? 'In Hand' : 'Missing'}</span>
+                    {c.passportInHand ? <Check className="h-3 w-3 stroke-[2.5]" /> : null}
+                  </button>
+
+                  {/* PCC */}
+                  <button
+                    onClick={(e) =>
+                      handleCellUpdate(c.id, { pccReceived: !c.pccReceived }, e)
+                    }
+                    className={`flex items-center justify-between px-2 py-1 rounded text-[11px] font-semibold border ${
+                      c.pccReceived
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-slate-50 text-slate-500 border-slate-200'
+                    }`}
+                  >
+                    <span>PCC: {c.pccReceived ? 'Verified' : 'Pending'}</span>
+                    {c.pccReceived ? <Check className="h-3 w-3 stroke-[2.5]" /> : null}
+                  </button>
+                </div>
+
+                {/* Footer: Open File Link */}
+                <div className="flex items-center justify-end mt-2 pt-2 border-t border-slate-100">
+                  <span className="text-xs font-semibold text-[#213F7C] flex items-center gap-1">
+                    Open File <ExternalLink className="h-3 w-3" />
                   </span>
                 </div>
               </div>
@@ -862,145 +907,201 @@ export default function CandidateTable({
         )}
       </div>
 
-      {/* 4. MASTER SPREADSHEET TABLE (Always visible on desktop `>= md`, or on mobile if table mode selected) */}
-      <div className={`clean-card overflow-hidden ${mobileViewMode === 'cards' ? 'hidden md:block' : 'block'}`}>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/90 text-slate-600 font-semibold text-[11px] uppercase tracking-wider select-none">
-                <th className="py-2.5 px-3 w-10 text-center">
+      {/* 4. MODERN COMPACT TABLE (Desktop `>= md`, fits full width with zero horizontal dragging) */}
+      <div className="hidden md:block clean-card overflow-hidden shadow-xs border border-slate-200">
+        <table className="w-full text-left border-collapse text-xs">
+          <thead className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur-xs border-b border-slate-200">
+            <tr className="text-slate-600 font-semibold text-[11px] uppercase tracking-wider select-none">
+              {/* Col 1: Select & File ID */}
+              <th className="py-3 px-3 w-[140px] whitespace-nowrap">
+                <div className="flex items-center gap-2.5">
                   <input
                     type="checkbox"
                     checked={allSelectedOnPage}
                     onChange={onSelectAll}
                     className="rounded border-slate-300 accent-[#213F7C] text-[#213F7C] focus:ring-[#213F7C] cursor-pointer"
                   />
-                </th>
-                <th className="py-2.5 px-2 w-10 font-mono-numeric text-center">#</th>
-                <th className="py-2.5 px-3">File ID</th>
-                <th className="py-2.5 px-4">Candidate Name</th>
-                <th className="py-2.5 px-3">Passport No.</th>
-                <th className="py-2.5 px-3">Sourcing Agency</th>
-                <th className="py-2.5 px-3 text-center">Submission Slip</th>
-                <th className="py-2.5 px-3 text-center">Work Permit</th>
-                <th className="py-2.5 px-3">City / Region</th>
-                <th className="py-2.5 px-3 text-center">Passport</th>
-                <th className="py-2.5 px-3 text-center">PCC</th>
-                <th className="py-2.5 px-3 text-center">Stage</th>
-                <th className="py-2.5 px-3 text-right">Details</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200/80 bg-white">
-              {loading ? (
-                <tr>
-                  <td colSpan={13} className="py-12 text-center text-slate-500">
-                    <div className="flex flex-col items-center justify-center gap-2">
-                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#213F7C] border-t-transparent" />
-                      <span className="text-xs">Loading candidates...</span>
-                    </div>
-                  </td>
-                </tr>
-              ) : paginatedCandidates.length === 0 ? (
-                <tr>
-                  <td colSpan={13} className="py-12 text-center text-slate-500">
-                    <p className="text-xs">No candidate records match your filter criteria.</p>
-                    <button
-                      onClick={handleClearAllFilters}
-                      className="mt-2 text-xs text-[#213F7C] font-semibold hover:underline cursor-pointer"
-                    >
-                      Reset all filters
-                    </button>
-                  </td>
-                </tr>
-              ) : (
-                paginatedCandidates.map((c) => {
-                  const isSelected = selectedIds.includes(c.id);
-                  const isApproved = c.approval;
-                  const isUrgentMissingPassport = isApproved && !c.passportInHand;
-                  const isJustUpdated = justUpdatedId === c.id;
+                  <button
+                    onClick={() => handleSort('fileId')}
+                    className="flex items-center gap-1 hover:text-[#213F7C] transition-colors cursor-pointer"
+                  >
+                    <span>File ID</span>
+                    {sortField === 'fileId' && (
+                      <span className="text-[#213F7C] font-bold">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                    )}
+                  </button>
+                </div>
+              </th>
 
-                  return (
-                    <tr
-                      key={c.id}
-                      onClick={() => onOpenDrawer(c)}
-                      className={`hover:bg-slate-50/90 transition-colors cursor-pointer group ${
-                        isSelected ? 'bg-[#213F7C]/5' : ''
-                      } ${isJustUpdated ? 'bg-amber-50/80' : ''}`}
+              {/* Col 2: Candidate & Passport */}
+              <th
+                onClick={() => handleSort('name')}
+                className="py-3 px-3.5 cursor-pointer hover:text-[#213F7C] hover:bg-slate-100/60 transition-colors whitespace-nowrap"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span>Candidate &amp; Passport</span>
+                  {sortField === 'name' && (
+                    <span className="text-[#213F7C] font-bold">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                  )}
+                </div>
+              </th>
+
+              {/* Col 3: Agency & Placement */}
+              <th
+                onClick={() => handleSort('agent')}
+                className="py-3 px-3.5 cursor-pointer hover:text-[#213F7C] hover:bg-slate-100/60 transition-colors whitespace-nowrap"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span>Agency &amp; Placement</span>
+                  {sortField === 'agent' && (
+                    <span className="text-[#213F7C] font-bold">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                  )}
+                </div>
+              </th>
+
+              {/* Col 4: Milestones & Documents */}
+              <th className="py-3 px-3 text-center whitespace-nowrap">
+                Milestones &amp; Documents
+              </th>
+
+              {/* Col 5: Stage & Action */}
+              <th
+                onClick={() => handleSort('stage')}
+                className="py-3 px-4 text-right cursor-pointer hover:text-[#213F7C] hover:bg-slate-100/60 transition-colors whitespace-nowrap"
+              >
+                <div className="flex items-center justify-end gap-1.5">
+                  <span>Stage</span>
+                  {sortField === 'stage' && (
+                    <span className="text-[#213F7C] font-bold">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                  )}
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 bg-white">
+            {loading ? (
+              <tr>
+                <td colSpan={5} className="py-12 text-center text-slate-500">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#213F7C] border-t-transparent" />
+                    <span className="text-xs">Loading candidates...</span>
+                  </div>
+                </td>
+              </tr>
+            ) : paginatedCandidates.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="py-12 text-center text-slate-500">
+                  <p className="text-xs">No candidate records match your filter criteria.</p>
+                  <button
+                    onClick={handleClearAllFilters}
+                    className="mt-2 text-xs text-[#213F7C] font-semibold hover:underline cursor-pointer"
+                  >
+                    Reset all filters
+                  </button>
+                </td>
+              </tr>
+            ) : (
+              paginatedCandidates.map((c) => {
+                const isSelected = selectedIds.includes(c.id);
+                const isApproved = c.approval;
+                const isUrgentMissingPassport = isApproved && !c.passportInHand;
+                const isJustUpdated = justUpdatedId === c.id;
+
+                return (
+                  <tr
+                    key={c.id}
+                    onClick={() => onOpenDrawer(c)}
+                    className={`hover:bg-slate-50/90 transition-colors cursor-pointer group ${
+                      isSelected ? 'bg-[#213F7C]/5' : ''
+                    } ${isJustUpdated ? 'bg-amber-50/80' : ''}`}
+                  >
+                    {/* Col 1: Select & File ID (No serial numbering) */}
+                    <td
+                      className="py-3 px-3 align-middle whitespace-nowrap"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      {/* Checkbox */}
-                      <td
-                        className="py-2.5 px-3 text-center"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <div className="flex items-center gap-2.5">
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => onToggleSelect(c.id)}
                           className="rounded border-slate-300 accent-[#213F7C] text-[#213F7C] focus:ring-[#213F7C] cursor-pointer"
                         />
-                      </td>
-
-                      {/* Serial Number */}
-                      <td className="py-2.5 px-2 font-mono-numeric text-slate-400 font-medium text-[11px] text-center">
-                        {c.sl ? String(c.sl).padStart(3, '0') : '—'}
-                      </td>
-
-                      {/* File ID */}
-                      <td className="py-2.5 px-3 font-mono-numeric font-semibold text-slate-700 text-xs">
-                        <span className="rounded bg-slate-100 px-1.5 py-0.5 border border-slate-200">
+                        <span className="inline-flex items-center rounded-md bg-[#213F7C]/8 px-2 py-0.5 text-xs font-mono font-bold text-[#213F7C] border border-[#213F7C]/20 tracking-wide shadow-2xs whitespace-nowrap">
                           {c.fileId}
                         </span>
-                      </td>
+                      </div>
+                    </td>
 
-                      {/* Candidate Name */}
-                      <td className="py-2.5 px-4">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-semibold text-slate-900 uppercase group-hover:text-[#213F7C] transition-colors">
-                            {c.name}
-                          </span>
-                          {isUrgentMissingPassport && (
-                            <span
-                              title="Physical passport not in office (Urgent)"
-                              className="text-[#C0434A] animate-status-pulse"
-                            >
-                              <AlertTriangle className="h-3.5 w-3.5" />
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-[11px] text-slate-400 font-mono-numeric">
-                          Intake: {c.contactDate || 'Recorded'}
+                    {/* Col 2: Candidate Name + Passport Chip + Intake Date */}
+                    <td className="py-2.5 px-3.5 align-middle">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-slate-900 uppercase group-hover:text-[#213F7C] transition-colors leading-tight">
+                          {c.name}
                         </span>
-                      </td>
-
-                      {/* Passport Number + Copy */}
-                      <td className="py-2.5 px-3 font-mono-numeric">
-                        <div className="inline-flex items-center gap-1.5 rounded-md bg-slate-50 px-2 py-0.5 border border-slate-200">
-                          <span className="font-semibold text-slate-800 text-[11px]">
-                            {c.passportNumber}
+                        {isUrgentMissingPassport && (
+                          <span
+                            title="Physical passport not in office (Urgent)"
+                            className="text-[#C0434A] animate-status-pulse shrink-0"
+                          >
+                            <AlertTriangle className="h-3.5 w-3.5" />
                           </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 mt-1 text-[11px]">
+                        <div className="inline-flex items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 border border-slate-200/80 font-mono text-slate-700">
+                          <span className="font-semibold">{c.passportNumber}</span>
                           <button
                             onClick={(e) => handleCopyPassport(c.passportNumber, c.id, e)}
                             title="Copy passport number"
-                            className="rounded p-0.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+                            className="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
                           >
                             {copiedId === c.id ? (
-                              <Check className="h-3 w-3 text-emerald-600" />
+                              <Check className="h-2.5 w-2.5 text-emerald-600" />
                             ) : (
-                              <Copy className="h-3 w-3" />
+                              <Copy className="h-2.5 w-2.5" />
                             )}
                           </button>
                         </div>
-                      </td>
-
-                      {/* Sourcing Agency */}
-                      <td className="py-2.5 px-3">
-                        <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
-                          {c.agent?.name || 'Direct'}
+                        <span className="text-slate-400 font-mono-numeric">
+                          Intake: {c.contactDate || 'Recorded'}
                         </span>
-                      </td>
+                      </div>
+                    </td>
 
-                      {/* Submission Slip Toggle */}
-                      <td className="py-2.5 px-3 text-center">
+                    {/* Col 3: Agency & Placement (Agency name + Code + Destination City Select) */}
+                    <td className="py-2.5 px-3.5 align-middle" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-1.5 text-xs text-slate-800 font-medium">
+                        <span className="truncate max-w-[150px]">{c.agent?.name || 'Direct SkyBridge'}</span>
+                        {c.agent?.code && (
+                          <span className="text-[10px] font-mono font-bold text-slate-400 shrink-0">
+                            [{c.agent.code}]
+                          </span>
+                        )}
+                      </div>
+                      <div className="mt-1 flex items-center gap-1 text-[11px]">
+                        <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
+                        <select
+                          value={c.approvalCity || ''}
+                          onChange={(e) =>
+                            onUpdateCandidate(c.id, { approvalCity: e.target.value })
+                          }
+                          className="rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[11px] font-medium text-slate-700 hover:border-slate-300 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none cursor-pointer"
+                        >
+                          <option value="">Unassigned City</option>
+                          {CITIES.map((city) => (
+                            <option key={city} value={city}>
+                              {city}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </td>
+
+                    {/* Col 4: Milestones & Documents (2x2 Compact Cluster of One-Click Toggles) */}
+                    <td className="py-2.5 px-3 align-middle" onClick={(e) => e.stopPropagation()}>
+                      <div className="grid grid-cols-2 gap-1.5 min-w-[210px] max-w-[240px] mx-auto">
+                        {/* Submission Slip */}
                         <button
                           onClick={(e) =>
                             handleCellUpdate(
@@ -1014,25 +1115,18 @@ export default function CandidateTable({
                               e
                             )
                           }
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer border ${
+                          title={c.submissionSlip ? `Submission Slip: Filed on ${c.submissionDate || 'N/A'}` : 'Submission Slip: Unfiled (Click to toggle)'}
+                          className={`inline-flex items-center justify-between gap-1 px-2 py-0.5 rounded text-[11px] font-medium border transition-all cursor-pointer ${
                             c.submissionSlip
-                              ? 'bg-[#213F7C]/10 text-[#213F7C] border-[#213F7C]/20 hover:bg-[#213F7C]/15 font-semibold'
-                              : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
+                              ? 'bg-[#213F7C]/8 text-[#213F7C] border-[#213F7C]/20 hover:bg-[#213F7C]/15'
+                              : 'bg-slate-50 text-slate-400 border-slate-200 hover:bg-slate-100'
                           }`}
                         >
-                          {c.submissionSlip ? (
-                            <>
-                              <Check className="h-3 w-3" />
-                              <span>{c.submissionDate || 'Filed'}</span>
-                            </>
-                          ) : (
-                            <span>Pending</span>
-                          )}
+                          <span className="truncate">Slip</span>
+                          {c.submissionSlip ? <Check className="h-2.5 w-2.5 stroke-[2.5]" /> : <span className="text-[10px] text-slate-400">—</span>}
                         </button>
-                      </td>
 
-                      {/* Approval Toggle */}
-                      <td className="py-2.5 px-3 text-center">
+                        {/* Work Permit Approval */}
                         <button
                           onClick={(e) =>
                             handleCellUpdate(
@@ -1047,142 +1141,137 @@ export default function CandidateTable({
                               e
                             )
                           }
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer border ${
+                          title={c.approval ? `Work Permit Approved: ${c.approvalDate || 'OK'}` : 'Work Permit: In Review (Click to approve)'}
+                          className={`inline-flex items-center justify-between gap-1 px-2 py-0.5 rounded text-[11px] font-medium border transition-all cursor-pointer ${
                             c.approval
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 font-bold'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300 font-bold hover:bg-emerald-100'
                               : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
                           }`}
                         >
-                          {c.approval ? (
-                            <>
-                              <CheckCircle2 className="h-3 w-3 text-emerald-600" />
-                              <span>Approved</span>
-                            </>
-                          ) : (
-                            <span>In Review</span>
-                          )}
+                          <span className="truncate">Permit</span>
+                          {c.approval ? <CheckCircle2 className="h-2.5 w-2.5 stroke-[2.5] text-emerald-600" /> : <span className="text-[10px] text-amber-600">Review</span>}
                         </button>
-                      </td>
 
-                      {/* City Dropdown */}
-                      <td className="py-2.5 px-3" onClick={(e) => e.stopPropagation()}>
-                        <select
-                          value={c.approvalCity || ''}
-                          onChange={(e) =>
-                            onUpdateCandidate(c.id, { approvalCity: e.target.value })
-                          }
-                          className="rounded-md border border-slate-300 bg-white px-2 py-1 text-[11px] text-slate-700 focus:border-[#213F7C] focus:outline-none cursor-pointer"
-                        >
-                          <option value="">Unassigned</option>
-                          {CITIES.map((city) => (
-                            <option key={city} value={city}>
-                              {city}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-
-                      {/* Passport in Hand Toggle */}
-                      <td className="py-2.5 px-3 text-center">
+                        {/* Vault Passport */}
                         <button
                           onClick={(e) =>
                             handleCellUpdate(c.id, { passportInHand: !c.passportInHand }, e)
                           }
-                          title="Toggle original passport in office"
-                          className={`inline-flex items-center justify-center h-6 w-6 rounded border transition-colors cursor-pointer ${
+                          title={c.passportInHand ? "Physical passport safely deposited in office vault" : "Physical passport NOT deposited in vault"}
+                          className={`inline-flex items-center justify-between gap-1 px-2 py-0.5 rounded text-[11px] font-medium border transition-all cursor-pointer ${
                             c.passportInHand
-                              ? 'bg-emerald-50 border-emerald-300 text-emerald-700 font-bold'
-                              : 'bg-white border-slate-200 text-slate-300 hover:border-slate-400'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
+                              : c.approval
+                              ? 'bg-[#C0434A]/10 text-[#C0434A] border-[#C0434A]/30 font-bold animate-status-pulse'
+                              : 'bg-slate-50 text-slate-400 border-slate-200 hover:bg-slate-100'
                           }`}
                         >
-                          {c.passportInHand ? <Check className="h-3.5 w-3.5" /> : '—'}
+                          <span className="truncate">Vault</span>
+                          {c.passportInHand ? <Check className="h-2.5 w-2.5 stroke-[2.5]" /> : <span className="text-[10px] text-rose-500 font-bold">Missing</span>}
                         </button>
-                      </td>
 
-                      {/* PCC Toggle */}
-                      <td className="py-2.5 px-3 text-center">
+                        {/* PCC Status */}
                         <button
                           onClick={(e) =>
                             handleCellUpdate(c.id, { pccReceived: !c.pccReceived }, e)
                           }
-                          title="Toggle Police Clearance Certificate"
-                          className={`inline-flex items-center justify-center h-6 w-6 rounded border transition-colors cursor-pointer ${
+                          title={c.pccReceived ? "Police clearance certificate verified" : "Police clearance certificate pending"}
+                          className={`inline-flex items-center justify-between gap-1 px-2 py-0.5 rounded text-[11px] font-medium border transition-all cursor-pointer ${
                             c.pccReceived
-                              ? 'bg-emerald-50 border-emerald-300 text-emerald-700 font-bold'
-                              : 'bg-white border-slate-200 text-slate-300 hover:border-slate-400'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
+                              : c.approval
+                              ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                              : 'bg-slate-50 text-slate-400 border-slate-200 hover:bg-slate-100'
                           }`}
                         >
-                          {c.pccReceived ? <Check className="h-3.5 w-3.5" /> : '—'}
+                          <span className="truncate">PCC</span>
+                          {c.pccReceived ? <Check className="h-2.5 w-2.5 stroke-[2.5]" /> : <span className="text-[10px] text-slate-400">Pending</span>}
                         </button>
-                      </td>
+                      </div>
+                    </td>
 
-                      {/* Overall Pipeline Stage */}
-                      <td className="py-2.5 px-3 text-center">
+                    {/* Col 5: Stage & Action */}
+                    <td className="py-2.5 px-4 text-right align-middle" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex flex-col items-end gap-1.5">
                         <span
-                          className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide border ${
+                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide border uppercase ${
                             c.stage === 'DEPLOYMENT_READY'
                               ? 'bg-[#C0434A]/10 text-[#C0434A] border-[#C0434A]/25'
                               : c.stage === 'APPROVED'
                               ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                               : c.stage === 'SUBMITTED'
                               ? 'bg-[#213F7C]/10 text-[#213F7C] border-[#213F7C]/20'
+                              : c.stage === 'REJECTED'
+                              ? 'bg-rose-50 text-rose-700 border-rose-200'
                               : 'bg-slate-100 text-slate-600 border-slate-200'
                           }`}
                         >
                           {c.stage.replace('_', ' ')}
                         </span>
-                      </td>
-
-                      {/* Open Candidate Drawer Button */}
-                      <td className="py-2.5 px-3 text-right">
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onOpenDrawer(c);
-                          }}
-                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-[#213F7C] p-1 rounded hover:bg-slate-100 transition-colors cursor-pointer"
+                          onClick={() => onOpenDrawer(c)}
+                          className="inline-flex items-center gap-1 text-[11px] font-bold text-[#213F7C] hover:text-[#183060] bg-[#213F7C]/6 hover:bg-[#213F7C]/12 px-2 py-0.5 rounded transition-colors cursor-pointer"
                         >
                           <span>Open</span>
-                          <ExternalLink className="h-3 w-3" />
+                          <ExternalLink className="h-2.5 w-2.5" />
                         </button>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* 5. RESPONSIVE PAGINATION BAR (Visible on both mobile & desktop) */}
+      <div className="clean-card flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-slate-200 bg-white/80 backdrop-blur-xs px-4 py-3 shadow-xs">
+        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+          <div>
+            Showing <strong className="text-slate-900 font-mono-numeric">{filteredCandidates.length > 0 ? startIndex + 1 : 0}</strong> to{' '}
+            <strong className="text-slate-900 font-mono-numeric">{endIndex}</strong> of{' '}
+            <strong className="text-slate-900 font-mono-numeric">{filteredCandidates.length}</strong> candidates
+          </div>
+
+          <div className="flex items-center gap-1.5 ml-1 border-l border-slate-200 pl-3">
+            <span className="text-slate-400 font-medium">Rows:</span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="rounded-md border border-slate-300 bg-white px-2 py-0.5 text-xs text-slate-700 focus:outline-none focus:border-[#213F7C] cursor-pointer"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
         </div>
 
-        {/* Pagination Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-200 bg-slate-50/50 px-4 py-3">
-          <div className="text-xs text-slate-500 text-center sm:text-left">
-            Showing <strong className="text-slate-900">{startIndex + 1}</strong> to{' '}
-            <strong className="text-slate-900">{endIndex}</strong> of{' '}
-            <strong className="text-slate-900">{filteredCandidates.length}</strong> candidates
-          </div>
-
-          <div className="flex items-center justify-center gap-2">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition-colors cursor-pointer"
-            >
-              <ChevronLeft className="h-3.5 w-3.5" />
-              <span>Previous</span>
-            </button>
-            <span className="text-xs text-slate-600 font-mono-numeric px-2">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className="flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition-colors cursor-pointer"
-            >
-              <span>Next</span>
-              <ChevronRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
+        <div className="flex items-center justify-center sm:justify-end gap-2">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition-colors cursor-pointer shadow-2xs"
+          >
+            <ChevronLeft className="h-3.5 w-3.5" />
+            <span>Previous</span>
+          </button>
+          <span className="text-xs text-slate-700 font-mono-numeric px-2 font-medium">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition-colors cursor-pointer shadow-2xs"
+          >
+            <span>Next</span>
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
         </div>
       </div>
     </div>

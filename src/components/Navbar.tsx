@@ -31,9 +31,9 @@ export default function Navbar({
     <>
       {/* Top Header Bar */}
       <header className="sticky top-0 z-40 w-full border-b border-slate-200/90 bg-white/95 backdrop-blur-md">
-        <div className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-3 sm:px-6 lg:px-8">
-          {/* Brand Logo */}
-          <div className="flex items-center shrink-0">
+        <div className="relative mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-3 sm:px-6 lg:px-8">
+          {/* Brand Logo (Left) */}
+          <div className="flex items-center shrink-0 z-10">
             <button
               onClick={() => onViewChange('candidates')}
               className="flex items-center text-left cursor-pointer focus:outline-none"
@@ -46,12 +46,12 @@ export default function Navbar({
             </button>
           </div>
 
-          {/* Desktop Centered Segmented Navigation */}
-          <nav className="hidden md:flex items-center gap-1 rounded-lg bg-slate-100/90 p-1 border border-slate-200/80 shadow-2xs">
+          {/* Desktop Perfectly Centered Segmented Navigation */}
+          <nav className="hidden md:flex items-center gap-1 rounded-lg bg-slate-100/90 p-1 border border-slate-200/80 shadow-2xs absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             {/* Operations Desk */}
             <button
               onClick={() => onViewChange('candidates')}
-              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
                 isDeskActive
                   ? 'bg-[#213F7C] text-white shadow-2xs font-bold'
                   : 'text-slate-600 hover:text-[#213F7C] hover:bg-white/80'
@@ -64,7 +64,7 @@ export default function Navbar({
             {/* Executive Insights */}
             <button
               onClick={() => onViewChange('dashboard')}
-              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
                 currentView === 'dashboard'
                   ? 'bg-[#213F7C] text-white shadow-2xs font-bold'
                   : 'text-slate-600 hover:text-[#213F7C] hover:bg-white/80'
@@ -77,7 +77,7 @@ export default function Navbar({
             {/* Partner Agencies */}
             <button
               onClick={() => onViewChange('agents')}
-              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
                 currentView === 'agents'
                   ? 'bg-[#213F7C] text-white shadow-2xs font-bold'
                   : 'text-slate-600 hover:text-[#213F7C] hover:bg-white/80'
@@ -88,8 +88,8 @@ export default function Navbar({
             </button>
           </nav>
 
-          {/* Action Controls */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Action Controls (Right) */}
+          <div className="flex items-center gap-2 shrink-0 z-10">
             {/* Role Switcher */}
             <button
               onClick={onToggleRole}
@@ -125,7 +125,7 @@ export default function Navbar({
         </div>
       </header>
 
-      {/* Mobile Sticky Bottom Navigation Bar (Optimized for thumb reach on mobile) */}
+      {/* Mobile Sticky Bottom Navigation Bar */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-md px-3 py-1.5 shadow-lg safe-bottom">
         <div className="grid grid-cols-3 gap-1 max-w-sm mx-auto">
           {/* Desk */}

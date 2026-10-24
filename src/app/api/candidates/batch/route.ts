@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { PipelineStage } from '@prisma/client';
+import { batchUpdateCandidates } from '@/lib/dataService';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,97 +12,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const todayStr = date || new Date().toLocaleDateString('en-GB');
+    const validActions = [
+      'MARK_SUBMITTED',
+      'MARK_APPROVED',
+      'MARK_PASSPORT_IN_HAND',
+      'MARK_PCC_RECEIVED',
+    ];
 
-    if (action === 'MARK_SUBMITTED') {
-      await prisma.$transaction(
-        candidateIds.map((id) =>
-          prisma.candidate.update({
-            where: { id },
-            data: {
-              submissionSlip: true,
-              submissionDate: todayStr,
-              stage: 'SUBMITTED',
-              auditLogs: {
-                create: {
-                  action: 'BATCH_SUBMITTED',
-                  actor: 'Operations Admin',
-                  details: `Batch marked submission slip received on ${todayStr}`,
-                },
-              },
-            },
-          })
-        )
-      );
-    } else if (action === 'MARK_APPROVED') {
-      await prisma.$transaction(
-        candidateIds.map((id) =>
-          prisma.candidate.update({
-            where: { id },
-            data: {
-              approval: true,
-              approvalDate: todayStr,
-              approvalCity: city || 'Strumica',
-              stage: 'APPROVED',
-              auditLogs: {
-                create: {
-                  action: 'BATCH_APPROVED',
-                  actor: 'Operations Admin',
-                  details: `Batch approved for ${city || 'Strumica'} on ${todayStr}`,
-                },
-              },
-            },
-          })
-        )
-      );
-    } else if (action === 'MARK_PASSPORT_IN_HAND') {
-      await prisma.$transaction(
-        candidateIds.map((id) =>
-          prisma.candidate.update({
-            where: { id },
-            data: {
-              passportInHand: true,
-              auditLogs: {
-                create: {
-                  action: 'BATCH_PASSPORT_RECEIVED',
-                  actor: 'Operations Admin',
-                  details: 'Physical passport deposited at Sky Bridge Ops desk',
-                },
-              },
-            },
-          })
-        )
-      );
-    } else if (action === 'MARK_PCC_RECEIVED') {
-      await prisma.$transaction(
-        candidateIds.map((id) =>
-          prisma.candidate.update({
-            where: { id },
-            data: {
-              pccReceived: true,
-              auditLogs: {
-                create: {
-                  action: 'BATCH_PCC_RECEIVED',
-                  actor: 'Operations Admin',
-                  details: 'Police Clearance Certificate verified and filed',
-                },
-              },
-            },
-          })
-        )
-      );
-    } else {
+    if (!validActions.includes(action)) {
       return NextResponse.json(
         { success: false, error: `Invalid batch action: ${action}` },
         { status: 400 }
       );
     }
 
+    const result = await batchUpdateCandidates(candidateIds, action, city, date);
+
     return NextResponse.json({
       success: true,
-      message: `Successfully processed ${candidateIds.length} candidate files`,
+      message: `Successfully processed ${result.count} candidate files`,
+      isDummy: result.isDummy,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Batch operation error:', error);
     return NextResponse.json(
       { success: false, error: 'Batch operation failed' },
