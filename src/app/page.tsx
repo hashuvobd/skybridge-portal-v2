@@ -271,7 +271,7 @@ export default function Home() {
                 Candidate Directory
               </h1>
               <p className="text-xs text-slate-500 mt-0.5">
-                Manage candidate files, submission slips, and work permit approvals for North Macedonia.
+                Manage candidate files, submission slips, and work permit approvals.
               </p>
             </div>
 

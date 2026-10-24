@@ -39,9 +39,6 @@ export default function Navbar({
               alt="Sky Bridge Visa Consultancy"
               className="h-10 w-auto max-w-[200px] object-contain"
             />
-            <span className="hidden lg:inline-flex items-center rounded-md bg-[#213F7C]/8 px-2.5 py-0.5 text-[11px] font-bold text-[#213F7C] border border-[#213F7C]/20">
-              North Macedonia
-            </span>
           </div>
 
           {/* Navigation Tabs */}

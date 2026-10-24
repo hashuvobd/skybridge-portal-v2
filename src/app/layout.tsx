@@ -17,7 +17,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'Sky Bridge Visa Consultancy | Candidate Portal',
   description:
-    'Operational management portal for Sky Bridge Visa Consultancy - tracking North Macedonia candidate applications, submission slips, approvals, and document readiness across regional partner agencies.',
+    'Operational management portal for Sky Bridge Visa Consultancy - tracking candidate applications, submission slips, approvals, and document readiness across regional partner agencies.',
 };
 
 export default function RootLayout({

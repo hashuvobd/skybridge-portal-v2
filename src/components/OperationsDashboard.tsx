@@ -52,7 +52,7 @@ export default function OperationsDashboard({
             Operations Overview
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Tracking {metrics.totalCandidates} applicant files across 17 partner agencies for North Macedonia work visa clearances.
+            Tracking {metrics.totalCandidates} applicant files across 17 partner agencies for work visa clearances.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -95,7 +95,7 @@ export default function OperationsDashboard({
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Submitted to NM
+              Submitted Files
             </span>
             <Send className="h-4 w-4 text-[#213F7C]" />
           </div>
@@ -228,13 +228,13 @@ export default function OperationsDashboard({
 
       {/* Analytics Breakdown Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Macedonian Municipalities */}
+        {/* Municipalities & Destination Regions */}
         <div className="clean-card p-5">
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-[#213F7C]" />
               <h3 className="text-xs font-bold text-[#213F7C] uppercase tracking-wider">
-                Approved Municipalities (North Macedonia)
+                Approved Municipalities & Regions
               </h3>
             </div>
             <span className="text-xs text-slate-500 font-medium">21 Total Clearances</span>

@@ -44,9 +44,9 @@ const AGENT_MAPPING: Record<string, { name: string; location: string; code: stri
   'kishoreganj agent': { name: 'Kishoreganj Gateway', location: 'Kishoreganj Sadar', code: 'KSH' },
   'agent ashulia': { name: 'Ashulia Regional Agency', location: 'Dhaka - Ashulia', code: 'ASH' },
   ashulia: { name: 'Ashulia Regional Agency', location: 'Dhaka - Ashulia', code: 'ASH' },
-  'jowel agent': { name: 'Agent Jowel (NM)', location: 'Dhaka - Central Operations', code: 'JWL' },
-  'agent jowel': { name: 'Agent Jowel (NM)', location: 'Dhaka - Central Operations', code: 'JWL' },
-  'agent jowel (nm)': { name: 'Agent Jowel (NM)', location: 'Dhaka - Central Operations', code: 'JWL' },
+  'jowel agent': { name: 'Agent Jowel', location: 'Dhaka - Central Operations', code: 'JWL' },
+  'agent jowel': { name: 'Agent Jowel', location: 'Dhaka - Central Operations', code: 'JWL' },
+  'agent jowel (nm)': { name: 'Agent Jowel', location: 'Dhaka - Central Operations', code: 'JWL' },
   'direct skybridge': { name: 'Sky Bridge Direct Intake', location: 'Dhaka - Gulshan HQ', code: 'SBD' },
 };
 
@@ -125,7 +125,7 @@ export async function syncFromExcel() {
         contactPerson: `Operations Coordinator (${resolved.location})`,
         phone: '+880 1700-000000',
         email: `ops@${resolved.code.toLowerCase()}.skybridge.com`,
-        notes: `Authorized European Employment Migration Partner - North Macedonia Project`,
+        notes: `Authorized European Employment Migration Partner`,
       },
     });
     agentCache.set(resolved.name, agent);
@@ -205,7 +205,7 @@ export async function syncFromExcel() {
         pccReceived,
         stage,
         agentId: agent.id,
-        notes: approval ? `Approved work permit for ${approvalCity || 'Macedonia'}` : null,
+        notes: approval ? `Approved work permit for ${approvalCity || 'Regional Office'}` : null,
       },
     });
   }

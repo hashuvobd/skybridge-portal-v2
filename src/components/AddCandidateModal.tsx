@@ -96,7 +96,7 @@ export default function AddCandidateModal({
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-900">Add New Candidate</h2>
-              <p className="text-[11px] text-slate-500">Manual intake for North Macedonia visa process</p>
+              <p className="text-[11px] text-slate-500">Manual candidate intake for visa processing</p>
             </div>
           </div>
           <button
@@ -216,7 +216,7 @@ export default function AddCandidateModal({
                 onChange={(e) => setSubmissionSlip(e.target.checked)}
                 className="rounded border-slate-300 accent-[#213F7C] text-[#213F7C] focus:ring-[#213F7C] cursor-pointer"
               />
-              <span className="font-semibold text-slate-800">Already filed with North Macedonia (Submission Slip)</span>
+              <span className="font-semibold text-slate-800">Already filed with Ministry / Immigration (Submission Slip)</span>
             </label>
 
             {submissionSlip && (

@@ -224,7 +224,7 @@ export default function CandidateTable({
                 <th className="py-3 px-3">Sourcing Agency</th>
                 <th className="py-3 px-3 text-center">Submission Slip</th>
                 <th className="py-3 px-3 text-center">Work Permit</th>
-                <th className="py-3 px-3">City (NM)</th>
+                <th className="py-3 px-3">City / Region</th>
                 <th className="py-3 px-3 text-center">Passport</th>
                 <th className="py-3 px-3 text-center">PCC</th>
                 <th className="py-3 px-4 text-right">Stage</th>
