@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum PipelineStage {
+  INTAKE
+  SUBMITTED
+  APPROVED
+  DEPLOYMENT_READY
+  REJECTED
+}
+
+enum UserRole {
+  ADMIN
+  REGIONAL_AGENT
+  OPERATIONS_MANAGER
+}
+
+model Agent {
+  id            String      @id @default(cuid())
+  name          String      @unique
+  code          String?
+  contactPerson String?
+  phone         String?
+  email         String?
+  location      String?
+  notes         String?
+  candidates    Candidate[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([name])
+}
+
+model Candidate {
+  id              String        @id @default(cuid())
+  sl              Int?
+  fileId          String        @unique
+  name            String
+  passportNumber  String
+  contactForm     Boolean       @default(true)
+  contactDate     String?
+  submissionSlip  Boolean       @default(false)
+  submissionDate  String?
+  approval        Boolean       @default(false)
+  approvalDate    String?
+  approvalCity    String?
+  passportInHand  Boolean       @default(false)
+  pccReceived     Boolean       @default(false)
+  stage           PipelineStage @default(INTAKE)
+  agentId         String
+  agent           Agent         @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  notes           String?
+  auditLogs       AuditLog[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([passportNumber])
+  @@index([agentId])
+  @@index([stage])
+  @@index([approvalCity])
+}
+
+model AuditLog {
+  id          String     @id @default(cuid())
+  candidateId String?
+  candidate   Candidate? @relation(fields: [candidateId], references: [id], onDelete: SetNull)
+  action      String
+  actor       String     @default("Operations Admin")
+  details     String?
+  createdAt   DateTime   @default(now())
+
+  @@index([candidateId])
+  @@index([createdAt])
+}
