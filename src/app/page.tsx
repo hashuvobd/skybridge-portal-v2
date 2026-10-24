@@ -17,7 +17,6 @@ export default function Home() {
   const [agents, setAgents] = useState<AgentRecord[]>([]);
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [userRole, setUserRole] = useState<'ADMIN' | 'AGENT'>('ADMIN');
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -196,26 +195,6 @@ export default function Home() {
     }
   };
 
-  // Handle One-Click Sync from Excel
-  const handleSyncDatabase = async () => {
-    setIsSyncing(true);
-    try {
-      showToast('Syncing candidate records with Excel...');
-      const res = await fetch('/api/seed', { method: 'POST' });
-      const json = await res.json();
-      if (json.success) {
-        showToast(json.message || 'Records synchronized successfully');
-        await Promise.all([fetchCandidates(), fetchMetrics(), fetchAgents()]);
-      } else {
-        showToast(json.error || 'Sync failed', 'error');
-      }
-    } catch (err) {
-      showToast('Network error during sync', 'error');
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
   // Dashboard filter shortcut triggers
   const handleDashboardFilter = (filterType: string, value: string) => {
     if (filterType === 'urgent') {
@@ -274,8 +253,6 @@ export default function Home() {
           setUrgentFilter('');
         }}
         onOpenAddModal={() => setIsAddModalOpen(true)}
-        onSyncDatabase={handleSyncDatabase}
-        isSyncing={isSyncing}
         userRole={userRole}
         onToggleRole={() => {
           const next = userRole === 'ADMIN' ? 'AGENT' : 'ADMIN';

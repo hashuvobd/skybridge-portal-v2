@@ -6,7 +6,6 @@ import {
   Users,
   KanbanSquare,
   Building2,
-  RefreshCw,
   Plus,
   Shield,
 } from 'lucide-react';
@@ -15,8 +14,6 @@ interface NavbarProps {
   currentView: 'dashboard' | 'candidates' | 'kanban' | 'agents';
   onViewChange: (view: 'dashboard' | 'candidates' | 'kanban' | 'agents') => void;
   onOpenAddModal: () => void;
-  onSyncDatabase: () => void;
-  isSyncing: boolean;
   userRole: 'ADMIN' | 'AGENT';
   onToggleRole: () => void;
 }
@@ -25,8 +22,6 @@ export default function Navbar({
   currentView,
   onViewChange,
   onOpenAddModal,
-  onSyncDatabase,
-  isSyncing,
   userRole,
   onToggleRole,
 }: NavbarProps) {
@@ -108,23 +103,6 @@ export default function Navbar({
 
         {/* Action Controls */}
         <div className="flex items-center gap-2.5">
-          {/* Sync Excel */}
-          <button
-            onClick={onSyncDatabase}
-            disabled={isSyncing}
-            title="Sync data with Excel spreadsheet"
-            className="flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-colors disabled:opacity-50"
-          >
-            <RefreshCw
-              className={`h-3.5 w-3.5 ${
-                isSyncing ? 'animate-spin text-blue-600' : 'text-slate-400'
-              }`}
-            />
-            <span className="hidden sm:inline">
-              {isSyncing ? 'Syncing...' : 'Sync Excel'}
-            </span>
-          </button>
-
           {/* Role Switcher */}
           <button
             onClick={onToggleRole}
