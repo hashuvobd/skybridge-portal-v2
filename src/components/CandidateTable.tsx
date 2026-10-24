@@ -118,7 +118,7 @@ export default function CandidateTable({
                 onSearchChange(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full rounded-md border border-slate-300 bg-white pl-9 pr-4 py-2 text-xs text-slate-900 placeholder-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 focus:outline-none transition-all shadow-2xs"
+              className="w-full rounded-md border border-slate-300 bg-white pl-9 pr-4 py-2 text-xs text-slate-900 placeholder-slate-400 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none transition-all shadow-2xs"
             />
             {searchQuery && (
               <button
@@ -214,7 +214,7 @@ export default function CandidateTable({
                     type="checkbox"
                     checked={allSelectedOnPage}
                     onChange={onSelectAll}
-                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    className="rounded border-slate-300 accent-[#213F7C] text-[#213F7C] focus:ring-[#213F7C] cursor-pointer"
                   />
                 </th>
                 <th className="py-3 px-2 w-12 font-mono-numeric">#</th>
@@ -251,7 +251,7 @@ export default function CandidateTable({
                         onCityChange('all');
                         onStageChange('ALL');
                       }}
-                      className="mt-2 text-xs text-blue-600 font-semibold hover:underline cursor-pointer"
+                      className="mt-2 text-xs text-[#213F7C] font-semibold hover:underline cursor-pointer"
                     >
                       Reset all filters
                     </button>
@@ -268,7 +268,7 @@ export default function CandidateTable({
                     <tr
                       key={c.id}
                       className={`hover:bg-slate-50/80 transition-colors ${
-                        isSelected ? 'bg-blue-50/40' : ''
+                        isSelected ? 'bg-[#213F7C]/6' : ''
                       } ${isJustUpdated ? 'bg-amber-50' : ''}`}
                     >
                       {/* Checkbox */}
@@ -277,7 +277,7 @@ export default function CandidateTable({
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => onToggleSelect(c.id)}
-                          className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                          className="rounded border-slate-300 accent-[#213F7C] text-[#213F7C] focus:ring-[#213F7C] cursor-pointer"
                         />
                       </td>
 
@@ -298,7 +298,7 @@ export default function CandidateTable({
                             {c.name}
                           </span>
                           {isUrgentMissingPassport && (
-                            <span title="Physical passport not in office" className="text-rose-500">
+                            <span title="Physical passport not in office" className="text-[#C0434A]">
                               <AlertTriangle className="h-3.5 w-3.5" />
                             </span>
                           )}
@@ -348,7 +348,7 @@ export default function CandidateTable({
                           }
                           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer border ${
                             c.submissionSlip
-                              ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
+                              ? 'bg-[#213F7C]/10 text-[#213F7C] border-[#213F7C]/20 hover:bg-[#213F7C]/15'
                               : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
                           }`}
                         >
@@ -399,7 +399,7 @@ export default function CandidateTable({
                           onChange={(e) =>
                             handleCellUpdate(c.id, { approvalCity: e.target.value })
                           }
-                          className="rounded-md border border-slate-300 bg-white px-2 py-1 text-[11px] text-slate-700 focus:border-blue-600 focus:outline-none cursor-pointer"
+                          className="rounded-md border border-slate-300 bg-white px-2 py-1 text-[11px] text-slate-700 focus:border-[#213F7C] focus:outline-none cursor-pointer"
                         >
                           <option value="">Unassigned</option>
                           {CITIES.map((city) => (
@@ -447,13 +447,13 @@ export default function CandidateTable({
                       {/* Overall Pipeline Stage */}
                       <td className="py-2.5 px-4 text-right">
                         <span
-                          className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold tracking-wide border ${
+                          className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide border ${
                             c.stage === 'DEPLOYMENT_READY'
-                              ? 'bg-purple-50 text-purple-700 border-purple-200'
+                              ? 'bg-[#C0434A]/10 text-[#C0434A] border-[#C0434A]/25'
                               : c.stage === 'APPROVED'
                               ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                               : c.stage === 'SUBMITTED'
-                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                              ? 'bg-[#213F7C]/10 text-[#213F7C] border-[#213F7C]/20'
                               : 'bg-slate-100 text-slate-600 border-slate-200'
                           }`}
                         >

@@ -91,7 +91,7 @@ export default function AddCandidateModal({
       <div className="clean-card w-full max-w-lg p-6 shadow-2xl bg-white max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-800">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#213F7C]/10 text-[#213F7C]">
               <UserPlus className="h-4 w-4" />
             </div>
             <div>
@@ -108,7 +108,7 @@ export default function AddCandidateModal({
         </div>
 
         {errorMsg && (
-          <div className="mb-4 flex items-center gap-2 rounded-md bg-rose-50 border border-rose-200 p-2.5 text-xs text-rose-700">
+          <div className="mb-4 flex items-center gap-2 rounded-md bg-[#C0434A]/10 border border-[#C0434A]/30 p-2.5 text-xs text-[#C0434A]">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{errorMsg}</span>
           </div>
@@ -125,7 +125,7 @@ export default function AddCandidateModal({
               placeholder="e.g. MOHAMMAD RAHMAN"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 focus:outline-none uppercase"
+              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none uppercase"
               required
             />
           </div>
@@ -141,7 +141,7 @@ export default function AddCandidateModal({
                 placeholder="e.g. A09578491"
                 value={passportNumber}
                 onChange={(e) => setPassportNumber(e.target.value)}
-                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono-numeric uppercase"
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none font-mono-numeric uppercase"
                 required
               />
             </div>
@@ -154,7 +154,7 @@ export default function AddCandidateModal({
                 placeholder="DD.MM.YYYY"
                 value={contactDate}
                 onChange={(e) => setContactDate(e.target.value)}
-                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 focus:outline-none font-mono-numeric"
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none font-mono-numeric"
               />
             </div>
           </div>
@@ -167,7 +167,7 @@ export default function AddCandidateModal({
             <select
               value={agentId}
               onChange={(e) => setAgentId(e.target.value)}
-              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 focus:outline-none cursor-pointer"
+              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none cursor-pointer"
               required
             >
               <option value="">Select an agency...</option>
@@ -190,7 +190,7 @@ export default function AddCandidateModal({
                   type="checkbox"
                   checked={passportInHand}
                   onChange={(e) => setPassportInHand(e.target.checked)}
-                  className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  className="rounded border-slate-300 accent-[#213F7C] text-[#213F7C] focus:ring-[#213F7C] cursor-pointer"
                 />
                 <span className="text-slate-800">Physical Passport In Office</span>
               </label>
@@ -200,7 +200,7 @@ export default function AddCandidateModal({
                   type="checkbox"
                   checked={pccReceived}
                   onChange={(e) => setPccReceived(e.target.checked)}
-                  className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  className="rounded border-slate-300 accent-[#213F7C] text-[#213F7C] focus:ring-[#213F7C] cursor-pointer"
                 />
                 <span className="text-slate-800">PCC Certificate Collected</span>
               </label>
@@ -214,7 +214,7 @@ export default function AddCandidateModal({
                 type="checkbox"
                 checked={submissionSlip}
                 onChange={(e) => setSubmissionSlip(e.target.checked)}
-                className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                className="rounded border-slate-300 accent-[#213F7C] text-[#213F7C] focus:ring-[#213F7C] cursor-pointer"
               />
               <span className="font-semibold text-slate-800">Already filed with North Macedonia (Submission Slip)</span>
             </label>
@@ -259,7 +259,7 @@ export default function AddCandidateModal({
               placeholder="e.g. Medical pending, second contact number..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 focus:outline-none"
+              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-[#213F7C] focus:ring-1 focus:ring-[#213F7C] focus:outline-none"
             />
           </div>
 
@@ -275,7 +275,7 @@ export default function AddCandidateModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 rounded-md bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
+              className="px-4 py-2 rounded-md bg-[#C0434A] hover:bg-[#A8373E] text-white font-bold transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
             >
               {isSubmitting ? 'Saving...' : 'Add Candidate'}
             </button>

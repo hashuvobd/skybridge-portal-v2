@@ -9,10 +9,15 @@
     
     --border-subtle: #E2E8F0;
     --border-strong: #CBD5E1;
-    --border-focus: #2563EB;
     
-    --brand-primary: #0F172A;
-    --brand-accent: #2563EB;
+    /* Sky Bridge Official Palette */
+    --brand-navy: #213F7C;
+    --brand-navy-dark: #182F5D;
+    --brand-navy-light: rgba(33, 63, 124, 0.08);
+    
+    --brand-crimson: #C0434A;
+    --brand-crimson-dark: #A8373E;
+    --brand-crimson-light: rgba(192, 67, 74, 0.08);
     
     --text-primary: #0F172A;
     --text-secondary: #475569;
@@ -37,7 +42,7 @@ body {
   letter-spacing: 0.02em;
 }
 
-/* Crisp Clean Card */
+/* Crisp Clean Enterprise Card */
 .clean-card {
   background-color: #FFFFFF;
   border: 1px solid #E2E8F0;
@@ -52,6 +57,25 @@ body {
 .clean-card-hover:hover {
   border-color: #CBD5E1;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+}
+
+/* Brand Buttons */
+.btn-navy {
+  background-color: #213F7C;
+  color: #FFFFFF;
+  transition: background-color 0.15s ease;
+}
+.btn-navy:hover {
+  background-color: #182F5D;
+}
+
+.btn-crimson {
+  background-color: #C0434A;
+  color: #FFFFFF;
+  transition: background-color 0.15s ease;
+}
+.btn-crimson:hover {
+  background-color: #A8373E;
 }
 
 /* Custom Scrollbar */

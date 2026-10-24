@@ -29,7 +29,7 @@ const COLUMNS: { id: PipelineStage; title: string; subtitle: string; icon: any; 
     title: '2. Submitted',
     subtitle: 'Submission Slip Filed',
     icon: Send,
-    badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
+    badgeColor: 'bg-[#213F7C]/10 text-[#213F7C] border-[#213F7C]/20',
   },
   {
     id: 'APPROVED',
@@ -43,7 +43,7 @@ const COLUMNS: { id: PipelineStage; title: string; subtitle: string; icon: any; 
     title: '4. Deployment Ready',
     subtitle: 'Passport & PCC Collected',
     icon: Plane,
-    badgeColor: 'bg-purple-50 text-purple-700 border-purple-200',
+    badgeColor: 'bg-[#C0434A]/10 text-[#C0434A] border-[#C0434A]/25',
   },
 ];
 
@@ -182,7 +182,7 @@ export default function CandidateKanban({
                       {col.id !== 'DEPLOYMENT_READY' && (
                         <button
                           onClick={() => handleAdvanceStage(c)}
-                          className="w-full mt-2 flex items-center justify-center gap-1 py-1 rounded text-[11px] font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
+                          className="w-full mt-2 flex items-center justify-center gap-1 py-1 rounded text-[11px] font-semibold text-slate-700 bg-slate-50 hover:bg-[#213F7C] hover:text-white border border-slate-200 hover:border-[#213F7C] transition-colors cursor-pointer"
                         >
                           <span>Advance stage</span>
                           <ChevronRight className="h-3 w-3 text-slate-400" />

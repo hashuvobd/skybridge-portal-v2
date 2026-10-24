@@ -29,7 +29,7 @@ export default function OperationsDashboard({
     return (
       <div className="flex min-h-[350px] items-center justify-center">
         <div className="flex flex-col items-center gap-2">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-900 border-t-transparent" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#213F7C] border-t-transparent" />
           <p className="text-xs text-slate-500 font-medium">Loading pipeline analytics...</p>
         </div>
       </div>
@@ -56,8 +56,8 @@ export default function OperationsDashboard({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 border border-emerald-200">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#C0434A]/8 px-3 py-1 text-xs font-bold text-[#C0434A] border border-[#C0434A]/25">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#C0434A]" />
             21 Approvals Granted (Oct 2026)
           </span>
         </div>
@@ -74,7 +74,7 @@ export default function OperationsDashboard({
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Total Intake
             </span>
-            <Users className="h-4 w-4 text-slate-400" />
+            <Users className="h-4 w-4 text-[#213F7C]" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-2xl font-bold text-slate-900 font-mono-numeric">
@@ -84,7 +84,7 @@ export default function OperationsDashboard({
           </div>
           <p className="mt-1 text-xs text-slate-500">Master database records</p>
           <div className="mt-3 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-            <div className="h-full bg-slate-900 rounded-full" style={{ width: '100%' }} />
+            <div className="h-full bg-[#213F7C] rounded-full" style={{ width: '100%' }} />
           </div>
         </div>
 
@@ -97,17 +97,17 @@ export default function OperationsDashboard({
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Submitted to NM
             </span>
-            <Send className="h-4 w-4 text-blue-500" />
+            <Send className="h-4 w-4 text-[#213F7C]" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-slate-900 font-mono-numeric">
+            <span className="text-2xl font-bold text-[#213F7C] font-mono-numeric">
               {metrics.submittedFiles}
             </span>
-            <span className="text-xs text-blue-600 font-semibold">{submissionRate}% filed</span>
+            <span className="text-xs text-[#213F7C] font-semibold">{submissionRate}% filed</span>
           </div>
           <p className="mt-1 text-xs text-slate-500">Submission slips issued</p>
           <div className="mt-3 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-            <div className="h-full bg-blue-600 rounded-full" style={{ width: `${submissionRate}%` }} />
+            <div className="h-full bg-[#213F7C] rounded-full" style={{ width: `${submissionRate}%` }} />
           </div>
         </div>
 
@@ -163,24 +163,24 @@ export default function OperationsDashboard({
 
       {/* Action Items / Attention Alerts */}
       <div className="clean-card p-4">
-        <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">
+        <h2 className="text-xs font-bold text-[#213F7C] uppercase tracking-wider mb-3">
           Required Actions & Verification
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {/* Missing Passports for Approved */}
+          {/* Missing Passports for Approved (using #C0434A) */}
           <div
             onClick={() => onFilterTrigger('urgent', 'missing_passport_approved')}
-            className="flex items-start gap-3 p-3 rounded-lg border border-rose-200 bg-rose-50/50 hover:bg-rose-50 transition-colors cursor-pointer"
+            className="flex items-start gap-3 p-3 rounded-lg border border-[#C0434A]/30 bg-[#C0434A]/5 hover:bg-[#C0434A]/10 transition-colors cursor-pointer"
           >
-            <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+            <AlertCircle className="h-4 w-4 text-[#C0434A] shrink-0 mt-0.5" />
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-rose-900">Missing Passports</span>
-                <span className="font-mono text-xs font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded">
+                <span className="text-xs font-bold text-[#C0434A]">Missing Passports</span>
+                <span className="font-mono text-xs font-bold text-white bg-[#C0434A] px-2 py-0.5 rounded">
                   {metrics.missingPassportsApproved} files
                 </span>
               </div>
-              <p className="text-[11px] text-rose-700 mt-1">
+              <p className="text-[11px] text-slate-600 mt-1">
                 Approved candidates needing physical passport collection.
               </p>
             </div>
@@ -189,13 +189,13 @@ export default function OperationsDashboard({
           {/* Missing PCC for Approved */}
           <div
             onClick={() => onFilterTrigger('urgent', 'missing_pcc_approved')}
-            className="flex items-start gap-3 p-3 rounded-lg border border-amber-200 bg-amber-50/50 hover:bg-amber-50 transition-colors cursor-pointer"
+            className="flex items-start gap-3 p-3 rounded-lg border border-amber-200 bg-amber-50/60 hover:bg-amber-50 transition-colors cursor-pointer"
           >
             <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-amber-900">Missing PCC</span>
-                <span className="font-mono text-xs font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">
+                <span className="font-mono text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded">
                   {metrics.missingPccApproved} files
                 </span>
               </div>
@@ -214,7 +214,7 @@ export default function OperationsDashboard({
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-900">Awaiting Decision</span>
-                <span className="font-mono text-xs font-bold text-slate-700 bg-slate-200 px-1.5 py-0.5 rounded">
+                <span className="font-mono text-xs font-bold text-slate-700 bg-slate-200 px-2 py-0.5 rounded">
                   {metrics.pendingOver30Days} files
                 </span>
               </div>
@@ -232,8 +232,8 @@ export default function OperationsDashboard({
         <div className="clean-card p-5">
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-slate-500" />
-              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+              <MapPin className="h-4 w-4 text-[#213F7C]" />
+              <h3 className="text-xs font-bold text-[#213F7C] uppercase tracking-wider">
                 Approved Municipalities (North Macedonia)
               </h3>
             </div>
@@ -250,7 +250,7 @@ export default function OperationsDashboard({
                   className="group p-2.5 rounded-lg border border-slate-100 hover:border-slate-200 hover:bg-slate-50/80 transition-all cursor-pointer"
                 >
                   <div className="flex items-center justify-between text-xs mb-1.5">
-                    <span className="font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">
+                    <span className="font-semibold text-slate-800 group-hover:text-[#213F7C] transition-colors">
                       {item.city}
                     </span>
                     <span className="font-mono-numeric font-bold text-slate-900">
@@ -270,14 +270,14 @@ export default function OperationsDashboard({
         <div className="clean-card p-5">
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div className="flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-slate-500" />
-              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+              <Building2 className="h-4 w-4 text-[#213F7C]" />
+              <h3 className="text-xs font-bold text-[#213F7C] uppercase tracking-wider">
                 Top Sourcing Agencies
               </h3>
             </div>
             <button
               onClick={() => onFilterTrigger('stage', 'ALL')}
-              className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1"
+              className="text-xs font-semibold text-[#213F7C] hover:text-[#182F5D] flex items-center gap-1 cursor-pointer"
             >
               <span>View all</span>
               <ArrowRight className="h-3 w-3" />
@@ -293,11 +293,11 @@ export default function OperationsDashboard({
               >
                 <div className="flex items-center gap-2.5">
                   <span className="font-mono text-xs text-slate-400 w-4">{i + 1}</span>
-                  <span className="text-xs font-medium text-slate-800">{agent.agentName}</span>
+                  <span className="text-xs font-semibold text-slate-800">{agent.agentName}</span>
                 </div>
                 <div className="flex items-center gap-4 text-xs font-mono-numeric">
                   <span className="text-slate-500">{agent.total} intake</span>
-                  <span className="text-blue-600">{agent.submitted} filed</span>
+                  <span className="text-[#213F7C] font-medium">{agent.submitted} filed</span>
                   <span className="font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
                     {agent.approved} approved
                   </span>

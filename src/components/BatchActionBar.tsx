@@ -40,7 +40,7 @@ export default function BatchActionBar({
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-300 bg-white p-3.5 shadow-xl">
         {/* Selection Count */}
         <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-slate-900 text-white text-xs font-bold font-mono-numeric">
+          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[#213F7C] text-white text-xs font-bold font-mono-numeric">
             {selectedCount}
           </div>
           <span className="text-xs font-semibold text-slate-800">
@@ -60,9 +60,9 @@ export default function BatchActionBar({
           <button
             onClick={() => handleAction('MARK_SUBMITTED')}
             disabled={isProcessing}
-            className="flex items-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-1.5 rounded-md border border-[#213F7C]/30 bg-[#213F7C]/8 px-2.5 py-1.5 text-xs font-semibold text-[#213F7C] hover:bg-[#213F7C]/15 transition-colors disabled:opacity-50 cursor-pointer"
           >
-            <Send className="h-3.5 w-3.5 text-blue-600" />
+            <Send className="h-3.5 w-3.5 text-[#213F7C]" />
             <span>Mark Filed</span>
           </button>
 
@@ -86,7 +86,7 @@ export default function BatchActionBar({
           <button
             onClick={() => handleAction('MARK_APPROVED')}
             disabled={isProcessing}
-            className="flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
+            className="flex items-center gap-1.5 rounded-md bg-[#C0434A] hover:bg-[#A8373E] px-3 py-1.5 text-xs font-bold text-white transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
           >
             <CheckCircle2 className="h-3.5 w-3.5" />
             <span>Approve Selected</span>

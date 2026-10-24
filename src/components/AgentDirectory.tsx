@@ -85,7 +85,7 @@ export default function AgentDirectory({
                     <div className="text-[10px] text-slate-400 font-medium uppercase">Intake</div>
                   </div>
                   <div>
-                    <div className="text-base font-bold text-blue-600 font-mono-numeric">
+                    <div className="text-base font-bold text-[#213F7C] font-mono-numeric">
                       {submitted}
                     </div>
                     <div className="text-[10px] text-slate-400 font-medium uppercase">Filed</div>
@@ -109,10 +109,10 @@ export default function AgentDirectory({
               {/* Action Button */}
               <button
                 onClick={() => onSelectAgentToFilter(agent.id)}
-                className="mt-4 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
+                className="mt-4 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-[#213F7C] hover:text-white border border-slate-200 hover:border-[#213F7C] transition-colors cursor-pointer group"
               >
                 <span>View Candidates</span>
-                <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
+                <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-white" />
               </button>
             </div>
           );

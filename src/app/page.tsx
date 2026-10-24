@@ -281,7 +281,7 @@ export default function Home() {
                 onClick={() => setCurrentView('candidates')}
                 className={`flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
                   currentView === 'candidates'
-                    ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                    ? 'bg-[#213F7C] text-white shadow-2xs font-bold'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -292,7 +292,7 @@ export default function Home() {
                 onClick={() => setCurrentView('kanban')}
                 className={`flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
                   currentView === 'kanban'
-                    ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                    ? 'bg-[#213F7C] text-white shadow-2xs font-bold'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
