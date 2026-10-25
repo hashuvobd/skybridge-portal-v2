@@ -43,8 +43,7 @@ model Agent {
 
 model Candidate {
   id              String        @id @default(cuid())
-  sl              Int?
-  fileId          String        @unique
+  sl              Int           @unique
   name            String
   passportNumber  String
   contactForm     Boolean       @default(true)

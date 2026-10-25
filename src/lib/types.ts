@@ -3,8 +3,7 @@ export { PipelineStage };
 
 export type CandidateRecord = {
   id: string;
-  sl: number | null;
-  fileId: string;
+  sl: number;
   name: string;
   passportNumber: string;
   contactForm: boolean;

@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { getDashboardMetrics } from '@/lib/dataService';
 
 export async function GET() {

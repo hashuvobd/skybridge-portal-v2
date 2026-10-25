@@ -158,7 +158,7 @@ export async function syncFromExcel() {
     const approvalCity = normalizeString(row[10]);
 
     const extra = passportExtraMap.get(passportNo) || passportExtraMap.get(name.toUpperCase()) || { passportInHand: false, pccReceived: false };
-    const passportInHand = extra.passportInHand || (submissionSlip && !approval ? true : extra.passportInHand);
+    const passportInHand = extra.passportInHand;
     const pccReceived = extra.pccReceived;
 
     let stage: any = 'INTAKE';
@@ -170,11 +170,10 @@ export async function syncFromExcel() {
       stage = 'SUBMITTED';
     }
 
-    const fileId = `SB-NM-${String(sl).padStart(4, '0')}`;
     const agent = await getOrCreateAgent(agentRaw);
 
     await prisma.candidate.upsert({
-      where: { fileId },
+      where: { sl },
       update: {
         sl,
         name,
@@ -186,12 +185,13 @@ export async function syncFromExcel() {
         approval,
         approvalDate: approvalDate || null,
         approvalCity: approvalCity || (approval ? 'Strumica' : null),
+        passportInHand,
+        pccReceived,
         agentId: agent.id,
         stage,
       },
       create: {
         sl,
-        fileId,
         name,
         passportNumber: passportNo,
         contactForm,

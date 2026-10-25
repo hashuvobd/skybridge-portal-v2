@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   X,
   Copy,
@@ -47,6 +47,8 @@ export default function CandidateDrawer({
     }
   }, [candidate]);
 
+  const drawerRef = useRef<HTMLDivElement>(null);
+
   // Keyboard shortcut: Escape to close
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -56,6 +58,40 @@ export default function CandidateDrawer({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  // Prevent background scrolling when drawer is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  // Click outside to close drawer
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      if (drawerRef.current && !drawerRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+
+    const timer = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }, 50);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, [isOpen, onClose]);
 
   if (!isOpen || !candidate) return null;
@@ -72,7 +108,7 @@ export default function CandidateDrawer({
   const handleCopyWhatsAppSummary = () => {
     const text = `*Sky Bridge Visa Consultancy - File Update*
 Candidate: ${candidate.name}
-File ID: ${candidate.fileId}
+SL: #${candidate.sl != null ? candidate.sl : 'N/A'}
 Passport No: ${candidate.passportNumber}
 Sourcing Agency: ${candidate.agent?.name || 'Direct'}
 Submission Slip: ${candidate.submissionSlip ? `Filed (${candidate.submissionDate || 'Yes'})` : 'Pending'}
@@ -106,21 +142,27 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-150">
-      <div className="fixed inset-y-0 right-0 flex max-w-full w-full sm:w-auto">
-        <div className="w-full sm:w-[500px] lg:w-[540px] bg-white shadow-2xl flex flex-col justify-between border-l border-slate-200">
+    <div className="fixed inset-0 z-[45] md:z-50 overflow-hidden pointer-events-none">
+      {/* Backdrop: full screen dark blur, clicking outside closes drawer */}
+      <div
+        onClick={onClose}
+        className="pointer-events-auto fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-150"
+      />
+
+      {/* Sidebar: positioned strictly below header on mobile/tablet (top-14 sm:top-16), full-height on desktop (md:top-0) */}
+      <div className="fixed top-14 sm:top-16 md:top-0 bottom-0 right-0 flex max-w-full w-full sm:w-auto pointer-events-none">
+        <div
+          ref={drawerRef}
+          onClick={(e) => e.stopPropagation()}
+          className="pointer-events-auto w-full sm:w-[500px] lg:w-[540px] bg-white shadow-2xl flex flex-col justify-between border-l border-slate-200 h-full overflow-hidden animate-in slide-in-from-right duration-200"
+        >
           {/* Header */}
           <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-200 bg-white sticky top-0 z-10 flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                <span className="font-mono text-xs font-bold text-[#213F7C] bg-[#213F7C]/8 px-2 py-0.5 rounded border border-[#213F7C]/20">
-                  {candidate.fileId}
+                <span className="font-mono text-xs font-bold text-slate-700">
+                  SL #{candidate.sl != null ? candidate.sl : '—'}
                 </span>
-                {candidate.sl && (
-                  <span className="font-mono text-xs text-slate-400">
-                    SL #{String(candidate.sl).padStart(3, '0')}
-                  </span>
-                )}
                 <span
                   className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide border ${
                     candidate.stage === 'DEPLOYMENT_READY'
@@ -181,7 +223,7 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
                       Action Required: Physical Passport Missing
                     </h4>
                     <p className="mt-1 text-xs text-slate-700 leading-relaxed">
-                      Work permit authorized, but physical original passport is not in office vault. Collect immediately from candidate/agency for visa stamping.
+                      Work permit authorized, but physical original passport is not received in office. Collect immediately from candidate/agency for visa stamping.
                     </p>
                     <button
                       onClick={() => handleQuickToggle({ passportInHand: true })}
@@ -241,7 +283,7 @@ PCC: ${candidate.pccReceived ? 'Received' : 'Pending'}`;
               {/* Physical Passport In Office */}
               <div className="flex items-center justify-between gap-2">
                 <div>
-                  <div className="text-xs font-bold text-slate-800">Original Passport In Vault</div>
+                  <div className="text-xs font-bold text-slate-800">Original Passport (Physical)</div>
                   <p className="text-[11px] text-slate-500">Physical document in office</p>
                 </div>
                 <button

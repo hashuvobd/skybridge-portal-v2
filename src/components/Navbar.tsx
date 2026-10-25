@@ -30,8 +30,8 @@ export default function Navbar({
   return (
     <>
       {/* Top Header Bar */}
-      <header className="sticky top-0 z-40 w-full border-b border-slate-200/90 bg-white/95 backdrop-blur-md">
-        <div className="relative mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-3 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 md:z-40 w-full h-14 sm:h-16 border-b border-slate-200/90 bg-white/95 backdrop-blur-md">
+        <div className="relative mx-auto flex h-full max-w-7xl items-center justify-between px-3 sm:px-6 lg:px-8">
           {/* Brand Logo (Left) */}
           <div className="flex items-center shrink-0 z-10">
             <button

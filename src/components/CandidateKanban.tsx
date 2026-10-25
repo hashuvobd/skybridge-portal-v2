@@ -81,19 +81,6 @@ export default function CandidateKanban({
 
   return (
     <div className="space-y-3 sm:space-y-4 pb-12">
-      {/* Header Info */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
-        <div>
-          <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Pipeline Kanban Board</h2>
-          <p className="text-xs text-slate-500">
-            Track candidates progressing from initial intake to departure clearance.
-          </p>
-        </div>
-        <span className="text-xs text-slate-500 font-mono-numeric">
-          {candidates.length} active files
-        </span>
-      </div>
-
       {/* Mobile Stage Selector Pill Tabs (< lg screens) */}
       <div className="lg:hidden flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
         {COLUMNS.map((col) => {
@@ -168,8 +155,8 @@ export default function CandidateKanban({
                         <span className="font-semibold text-slate-900 text-xs uppercase leading-tight">
                           {c.name}
                         </span>
-                        <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-1 rounded shrink-0">
-                          {c.fileId}
+                        <span className="text-[10px] font-mono font-bold text-[#213F7C] bg-[#213F7C]/8 px-1.5 py-0.5 rounded border border-[#213F7C]/20 shrink-0">
+                          SL #{c.sl}
                         </span>
                       </div>
 

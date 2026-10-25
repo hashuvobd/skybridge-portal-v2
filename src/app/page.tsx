@@ -156,7 +156,7 @@ export default function Home() {
       });
       const json = await res.json();
       if (json.success) {
-        showToast(`Candidate ${json.data.name} created (${json.data.fileId})`);
+        showToast(`Candidate ${json.data.name} created (SL #${json.data.sl})`);
         fetchCandidates();
         fetchMetrics();
         fetchAgents();
@@ -363,6 +363,10 @@ export default function Home() {
               setSelectedAgent(agentId);
               setCurrentView('candidates');
             }}
+            onRefreshAgents={fetchAgents}
+            onRefreshCandidates={fetchCandidates}
+            onShowToast={showToast}
+            userRole={userRole}
           />
         )}
       </main>

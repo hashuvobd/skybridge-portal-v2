@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
     // Transform into clean tabular Excel rows
     const excelRows = candidates.map((c) => ({
       'SL': c.sl || '',
-      'File ID': c.fileId,
       'Candidate Name': c.name,
       'Passport Number': c.passportNumber,
       'Contact Date': c.contactDate || '',

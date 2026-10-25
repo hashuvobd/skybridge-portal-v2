@@ -91,10 +91,11 @@ export async function getCandidates(filters: CandidateQueryFilters): Promise<{
     const { search, agentId, stage, city, urgent, passportInHand, pccReceived } = filters;
 
     if (search) {
+      const searchNum = parseInt(search.replace(/[^0-9]/g, ''), 10);
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
         { passportNumber: { contains: search, mode: 'insensitive' } },
-        { fileId: { contains: search, mode: 'insensitive' } },
+        ...(!isNaN(searchNum) ? [{ sl: searchNum }] : []),
       ];
     }
 
@@ -165,7 +166,7 @@ export async function getCandidates(filters: CandidateQueryFilters): Promise<{
       (c) =>
         c.name.toLowerCase().includes(s) ||
         c.passportNumber.toLowerCase().includes(s) ||
-        c.fileId.toLowerCase().includes(s)
+        (c.sl !== null && String(c.sl).includes(s))
     );
   }
 
@@ -245,12 +246,10 @@ export async function createCandidate(data: {
       select: { sl: true },
     });
     const nextSl = (lastCandidate?.sl || 0) + 1;
-    const nextFileId = `SB-NM-${String(nextSl).padStart(4, '0')}`;
 
     const newCandidate = await prisma.candidate.create({
       data: {
         sl: nextSl,
-        fileId: nextFileId,
         name: data.name.toUpperCase().trim(),
         passportNumber: data.passportNumber.toUpperCase().trim(),
         contactForm: true,
@@ -269,7 +268,7 @@ export async function createCandidate(data: {
           create: {
             action: 'CREATED_MANUAL',
             actor: 'Operations Admin',
-            details: `Manually added candidate ${data.name} (${nextFileId})`,
+            details: `Manually added candidate ${data.name} (SL #${nextSl})`,
           },
         },
       },
@@ -284,7 +283,6 @@ export async function createCandidate(data: {
   // Dummy Store Creation
   const maxSl = mockCandidates.reduce((max, c) => Math.max(max, c.sl || 0), 0);
   const nextSl = maxSl + 1;
-  const nextFileId = `SB-NM-${String(nextSl).padStart(4, '0')}`;
 
   const agent = mockAgents.find((a) => a.id === data.agentId) || {
     id: data.agentId,
@@ -296,7 +294,6 @@ export async function createCandidate(data: {
   const newCandidate: CandidateRecord = {
     id: `cand-${Date.now()}`,
     sl: nextSl,
-    fileId: nextFileId,
     name: data.name.toUpperCase().trim(),
     passportNumber: data.passportNumber.toUpperCase().trim(),
     contactForm: true,
@@ -619,6 +616,197 @@ export async function getAgents(): Promise<{ agents: AgentRecord[]; isDummy: boo
   });
 
   return { agents: formatted, isDummy: true };
+}
+
+export async function createAgent(data: {
+  name: string;
+  code?: string;
+  location?: string;
+  contactPerson?: string;
+  phone?: string;
+  email?: string;
+  notes?: string;
+}): Promise<{ agent: AgentRecord; isDummy: boolean }> {
+  const dbConnected = await isDatabaseConnected();
+  const trimmedName = data.name.trim();
+  const code =
+    data.code?.trim().toUpperCase() ||
+    trimmedName.replace(/[^A-Za-z0-9]/g, '').slice(0, 4).toUpperCase() ||
+    'AGNT';
+
+  if (dbConnected) {
+    const created = await prisma.agent.create({
+      data: {
+        name: trimmedName,
+        code,
+        location: data.location?.trim() || null,
+        contactPerson: data.contactPerson?.trim() || null,
+        phone: data.phone?.trim() || null,
+        email: data.email?.trim() || null,
+        notes: data.notes?.trim() || null,
+      },
+    });
+
+    return {
+      agent: {
+        id: created.id,
+        name: created.name,
+        code: created.code,
+        location: created.location,
+        contactPerson: created.contactPerson,
+        phone: created.phone,
+        email: created.email,
+        notes: created.notes,
+        candidateCount: 0,
+        approvedCount: 0,
+        submittedCount: 0,
+        createdAt: created.createdAt,
+      },
+      isDummy: false,
+    };
+  }
+
+  const newAgent: AgentRecord = {
+    id: `agent-${Date.now()}`,
+    name: trimmedName,
+    code,
+    location: data.location?.trim() || 'Regional Office',
+    contactPerson: data.contactPerson?.trim() || null,
+    phone: data.phone?.trim() || null,
+    email: data.email?.trim() || null,
+    notes: data.notes?.trim() || null,
+    candidateCount: 0,
+    approvedCount: 0,
+    submittedCount: 0,
+    createdAt: new Date(),
+  };
+
+  mockAgents.push(newAgent);
+  return { agent: newAgent, isDummy: true };
+}
+
+export async function updateAgent(
+  id: string,
+  updates: Partial<{
+    name: string;
+    code?: string;
+    location?: string;
+    contactPerson?: string;
+    phone?: string;
+    email?: string;
+    notes?: string;
+  }>
+): Promise<{ agent: AgentRecord | null; isDummy: boolean }> {
+  const dbConnected = await isDatabaseConnected();
+
+  if (dbConnected) {
+    const existing = await prisma.agent.findUnique({
+      where: { id },
+      include: {
+        _count: { select: { candidates: true } },
+        candidates: { select: { submissionSlip: true, approval: true } },
+      },
+    });
+    if (!existing) return { agent: null, isDummy: false };
+
+    const updated = await prisma.agent.update({
+      where: { id },
+      data: {
+        name: updates.name !== undefined ? updates.name.trim() : undefined,
+        code: updates.code !== undefined ? updates.code.trim().toUpperCase() : undefined,
+        location: updates.location !== undefined ? updates.location.trim() || null : undefined,
+        contactPerson: updates.contactPerson !== undefined ? updates.contactPerson.trim() || null : undefined,
+        phone: updates.phone !== undefined ? updates.phone.trim() || null : undefined,
+        email: updates.email !== undefined ? updates.email.trim() || null : undefined,
+        notes: updates.notes !== undefined ? updates.notes.trim() || null : undefined,
+      },
+    });
+
+    let approvedCount = 0;
+    let submittedCount = 0;
+    existing.candidates.forEach((c) => {
+      if (c.approval) approvedCount++;
+      if (c.submissionSlip) submittedCount++;
+    });
+
+    return {
+      agent: {
+        id: updated.id,
+        name: updated.name,
+        code: updated.code,
+        location: updated.location,
+        contactPerson: updated.contactPerson,
+        phone: updated.phone,
+        email: updated.email,
+        notes: updated.notes,
+        candidateCount: existing._count.candidates,
+        approvedCount,
+        submittedCount,
+        createdAt: updated.createdAt,
+      },
+      isDummy: false,
+    };
+  }
+
+  const idx = mockAgents.findIndex((a) => a.id === id);
+  if (idx === -1) return { agent: null, isDummy: true };
+
+  mockAgents[idx] = {
+    ...mockAgents[idx],
+    ...updates,
+    name: updates.name !== undefined ? updates.name.trim() : mockAgents[idx].name,
+    code: updates.code !== undefined ? updates.code.trim().toUpperCase() : mockAgents[idx].code,
+  };
+
+  return { agent: mockAgents[idx], isDummy: true };
+}
+
+export async function deleteAgent(id: string): Promise<{ success: boolean; isDummy: boolean }> {
+  const dbConnected = await isDatabaseConnected();
+
+  if (dbConnected) {
+    const agent = await prisma.agent.findUnique({
+      where: { id },
+      include: { _count: { select: { candidates: true } } },
+    });
+    if (!agent) return { success: false, isDummy: false };
+
+    // If candidates exist, safely reassign to Direct Intake so candidates are never deleted
+    if (agent._count.candidates > 0) {
+      let defaultAgent = await prisma.agent.findFirst({
+        where: {
+          OR: [
+            { name: { contains: 'Direct', mode: 'insensitive' } },
+            { name: { contains: 'Head Office', mode: 'insensitive' } },
+          ],
+          id: { not: id },
+        },
+      });
+
+      if (!defaultAgent) {
+        defaultAgent = await prisma.agent.findFirst({
+          where: { id: { not: id } },
+        });
+      }
+
+      if (defaultAgent) {
+        await prisma.candidate.updateMany({
+          where: { agentId: id },
+          data: { agentId: defaultAgent.id },
+        });
+      }
+    }
+
+    await prisma.agent.delete({ where: { id } });
+    return { success: true, isDummy: false };
+  }
+
+  const idx = mockAgents.findIndex((a) => a.id === id);
+  if (idx !== -1) {
+    mockAgents.splice(idx, 1);
+    return { success: true, isDummy: true };
+  }
+  return { success: false, isDummy: true };
 }
 
 // -------------------------------------------------------------

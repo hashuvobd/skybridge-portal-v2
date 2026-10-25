@@ -196,7 +196,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-001',
     sl: 1,
-    fileId: 'SB-NM-0001',
     name: 'MD SHAHIN ALAM',
     passportNumber: 'A04829184',
     contactForm: true,
@@ -218,7 +217,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-002',
     sl: 2,
-    fileId: 'SB-NM-0002',
     name: 'MD SOHEL RANA',
     passportNumber: 'B08291471',
     contactForm: true,
@@ -240,7 +238,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-003',
     sl: 3,
-    fileId: 'SB-NM-0003',
     name: 'KABIR HOSSAIN',
     passportNumber: 'EE0918234',
     contactForm: true,
@@ -262,7 +259,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-004',
     sl: 4,
-    fileId: 'SB-NM-0004',
     name: 'MD RIPON MIAH',
     passportNumber: 'A12938472',
     contactForm: true,
@@ -284,7 +280,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-005',
     sl: 5,
-    fileId: 'SB-NM-0005',
     name: 'MOHAMMAD ALI',
     passportNumber: 'B01928374',
     contactForm: true,
@@ -306,7 +301,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-006',
     sl: 6,
-    fileId: 'SB-NM-0006',
     name: 'ABDUL KARIM',
     passportNumber: 'A08726351',
     contactForm: true,
@@ -328,7 +322,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-007',
     sl: 7,
-    fileId: 'SB-NM-0007',
     name: 'MD SUMON HOSSAIN',
     passportNumber: 'EF0192834',
     contactForm: true,
@@ -352,7 +345,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-008',
     sl: 8,
-    fileId: 'SB-NM-0008',
     name: 'MD RASHEDUL ISLAM',
     passportNumber: 'A03847192',
     contactForm: true,
@@ -374,7 +366,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-009',
     sl: 9,
-    fileId: 'SB-NM-0009',
     name: 'MEHEDI HASAN',
     passportNumber: 'B02938471',
     contactForm: true,
@@ -396,7 +387,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-010',
     sl: 10,
-    fileId: 'SB-NM-0010',
     name: 'MD JAHANGIR ALAM',
     passportNumber: 'EF0283741',
     contactForm: true,
@@ -418,7 +408,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-011',
     sl: 11,
-    fileId: 'SB-NM-0011',
     name: 'SAIFUL ISLAM TAREQ',
     passportNumber: 'A09283741',
     contactForm: true,
@@ -440,7 +429,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-012',
     sl: 12,
-    fileId: 'SB-NM-0012',
     name: 'MD RUBEL MIAH',
     passportNumber: 'B03847291',
     contactForm: true,
@@ -462,7 +450,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-013',
     sl: 13,
-    fileId: 'SB-NM-0013',
     name: 'AL-AMIN SHEIKH',
     passportNumber: 'EF0384721',
     contactForm: true,
@@ -484,7 +471,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-014',
     sl: 14,
-    fileId: 'SB-NM-0014',
     name: 'MD DELWAR HOSSAIN',
     passportNumber: 'A05829104',
     contactForm: true,
@@ -506,7 +492,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-015',
     sl: 15,
-    fileId: 'SB-NM-0015',
     name: 'KAMRUL HASAN',
     passportNumber: 'B04928172',
     contactForm: true,
@@ -530,7 +515,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-016',
     sl: 16,
-    fileId: 'SB-NM-0016',
     name: 'ANWAR HOSSAIN',
     passportNumber: 'A06829103',
     contactForm: true,
@@ -552,7 +536,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-017',
     sl: 17,
-    fileId: 'SB-NM-0017',
     name: 'MD FARUK AHMED',
     passportNumber: 'B05839201',
     contactForm: true,
@@ -574,7 +557,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-018',
     sl: 18,
-    fileId: 'SB-NM-0018',
     name: 'ZAKIR HOSSAIN',
     passportNumber: 'EF0482910',
     contactForm: true,
@@ -596,7 +578,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-019',
     sl: 19,
-    fileId: 'SB-NM-0019',
     name: 'MD NAZMUL HUDA',
     passportNumber: 'A07839201',
     contactForm: true,
@@ -619,7 +600,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-020',
     sl: 20,
-    fileId: 'SB-NM-0020',
     name: 'NURUL ISLAM',
     passportNumber: 'B06839204',
     contactForm: true,
@@ -641,7 +621,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-021',
     sl: 21,
-    fileId: 'SB-NM-0021',
     name: 'MD ARIF HOSSAIN',
     passportNumber: 'EF0582912',
     contactForm: true,
@@ -663,7 +642,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-022',
     sl: 22,
-    fileId: 'SB-NM-0022',
     name: 'SHAMIM REZA',
     passportNumber: 'A08829105',
     contactForm: true,
@@ -685,7 +663,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-023',
     sl: 23,
-    fileId: 'SB-NM-0023',
     name: 'MD BABUL MIAH',
     passportNumber: 'B07829106',
     contactForm: true,
@@ -709,7 +686,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-024',
     sl: 24,
-    fileId: 'SB-NM-0024',
     name: 'MD SHAKIL AHMED',
     passportNumber: 'A09829107',
     contactForm: true,
@@ -731,7 +707,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-025',
     sl: 25,
-    fileId: 'SB-NM-0025',
     name: 'SHAHIDUL ISLAM',
     passportNumber: 'B08829108',
     contactForm: true,
@@ -753,7 +728,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-026',
     sl: 26,
-    fileId: 'SB-NM-0026',
     name: 'ROKIBUL HASAN',
     passportNumber: 'EF0682913',
     contactForm: true,
@@ -775,7 +749,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-027',
     sl: 27,
-    fileId: 'SB-NM-0027',
     name: 'MD HABIBUR RAHMAN',
     passportNumber: 'A10829109',
     contactForm: true,
@@ -799,7 +772,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-028',
     sl: 28,
-    fileId: 'SB-NM-0028',
     name: 'MONIR HOSSAIN',
     passportNumber: 'B09829110',
     contactForm: true,
@@ -821,7 +793,6 @@ export const initialMockCandidates: CandidateRecord[] = [
   {
     id: 'cand-029',
     sl: 29,
-    fileId: 'SB-NM-0029',
     name: 'MD SHAFIQUL ISLAM',
     passportNumber: 'EF0782914',
     contactForm: true,

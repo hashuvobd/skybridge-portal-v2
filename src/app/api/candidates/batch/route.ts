@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { batchUpdateCandidates } from '@/lib/dataService';
 
 export async function POST(request: NextRequest) {

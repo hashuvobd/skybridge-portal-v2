@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { syncFromExcel } from '@/lib/syncExcel';
 
 export async function POST() {

@@ -22,6 +22,7 @@ import {
   ShieldAlert,
   Send,
   FileText,
+  Calendar,
 } from 'lucide-react';
 import { CandidateRecord, AgentRecord } from '@/lib/types';
 
@@ -199,11 +200,11 @@ export default function CandidateTable({
   const [justUpdatedId, setJustUpdatedId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(25);
-  const [sortField, setSortField] = useState<'fileId' | 'name' | 'agent' | 'stage'>('fileId');
+  const [sortField, setSortField] = useState<'sl' | 'name' | 'agent' | 'stage'>('sl');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSort = (field: 'fileId' | 'name' | 'agent' | 'stage') => {
+  const handleSort = (field: 'sl' | 'name' | 'agent' | 'stage') => {
     if (sortField === field) {
       setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
@@ -281,8 +282,8 @@ export default function CandidateTable({
 
     list.sort((a, b) => {
       let comp = 0;
-      if (sortField === 'fileId') {
-        comp = (a.fileId || '').localeCompare(b.fileId || '', undefined, { numeric: true });
+      if (sortField === 'sl') {
+        comp = (a.sl || 0) - (b.sl || 0);
       } else if (sortField === 'name') {
         comp = a.name.localeCompare(b.name);
       } else if (sortField === 'agent') {
@@ -602,7 +603,7 @@ export default function CandidateTable({
             <input
               ref={searchInputRef}
               type="text"
-              placeholder="Search candidate name, passport, file ID... (Press /)"
+              placeholder="Search candidate name, passport, SL... (Press /)"
               value={searchQuery}
               onChange={(e) => {
                 onSearchChange(e.target.value);
@@ -726,8 +727,8 @@ export default function CandidateTable({
                       }}
                       className="rounded border-slate-300 accent-[#213F7C] h-4 w-4 cursor-pointer"
                     />
-                    <span className="font-mono text-xs font-bold text-[#213F7C] bg-[#213F7C]/8 px-2 py-0.5 rounded border border-[#213F7C]/20 tracking-wide">
-                      {c.fileId}
+                    <span className="font-mono text-xs font-bold text-slate-700">
+                      #{c.sl}
                     </span>
                   </div>
 
@@ -764,7 +765,7 @@ export default function CandidateTable({
                       className="text-[#C0434A] text-[10px] font-bold flex items-center gap-1 shrink-0 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 animate-status-pulse"
                     >
                       <AlertTriangle className="h-3 w-3" />
-                      Vault Missing
+                      Passport Missing
                     </span>
                   )}
                 </div>
@@ -811,7 +812,7 @@ export default function CandidateTable({
                   </select>
                 </div>
 
-                {/* 4 Interactive Milestones (Slip, Permit, Vault Passport, PCC) */}
+                {/* Interactive Milestones & Documents (Submission Slip, Approval, Passport, PCC) */}
                 <div className="grid grid-cols-2 gap-1.5 mt-2.5 pt-2 border-t border-slate-100" onClick={(e) => e.stopPropagation()}>
                   {/* Submission Slip */}
                   <button
@@ -820,31 +821,39 @@ export default function CandidateTable({
                         c.id,
                         {
                           submissionSlip: !c.submissionSlip,
-                          submissionDate: !c.submissionSlip
+                          submissionDate: !c.submissionDate && !c.submissionSlip
                             ? new Date().toLocaleDateString('en-GB')
                             : null,
                         },
                         e
                       )
                     }
-                    className={`flex items-center justify-between px-2 py-1 rounded text-[11px] font-semibold border ${
+                    className={`flex flex-col items-start px-2 py-1.5 rounded text-[11px] font-semibold border ${
                       c.submissionSlip
-                        ? 'bg-[#213F7C]/8 text-[#213F7C] border-[#213F7C]/20'
+                        ? 'bg-[#213F7C]/10 text-[#213F7C] border-[#213F7C]/25'
                         : 'bg-slate-50 text-slate-500 border-slate-200'
                     }`}
                   >
-                    <span>Slip: {c.submissionSlip ? 'Filed' : 'Pending'}</span>
-                    {c.submissionSlip ? <Check className="h-3 w-3 stroke-[2.5]" /> : null}
+                    <div className="flex items-center justify-between w-full">
+                      <span>Slip: {c.submissionSlip ? 'Filed' : 'Pending'}</span>
+                      {c.submissionSlip ? <Check className="h-3 w-3 stroke-[2.5]" /> : null}
+                    </div>
+                    {c.submissionDate && (
+                      <span className="text-[10px] font-mono-numeric text-slate-600 font-normal mt-0.5 flex items-center gap-0.5">
+                        <Calendar className="h-2.5 w-2.5 text-slate-400" />
+                        {c.submissionDate}
+                      </span>
+                    )}
                   </button>
 
-                  {/* Work Permit Approval */}
+                  {/* Approval */}
                   <button
                     onClick={(e) =>
                       handleCellUpdate(
                         c.id,
                         {
                           approval: !c.approval,
-                          approvalDate: !c.approval
+                          approvalDate: !c.approvalDate && !c.approval
                             ? new Date().toLocaleDateString('en-GB')
                             : null,
                           approvalCity: !c.approval ? c.approvalCity || 'Strumica' : c.approvalCity,
@@ -852,17 +861,25 @@ export default function CandidateTable({
                         e
                       )
                     }
-                    className={`flex items-center justify-between px-2 py-1 rounded text-[11px] font-semibold border ${
+                    className={`flex flex-col items-start px-2 py-1.5 rounded text-[11px] font-semibold border ${
                       c.approval
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
                         : 'bg-amber-50 text-amber-700 border-amber-200'
                     }`}
                   >
-                    <span>Permit: {c.approval ? 'Approved' : 'Review'}</span>
-                    {c.approval ? <CheckCircle2 className="h-3 w-3 text-emerald-600" /> : null}
+                    <div className="flex items-center justify-between w-full">
+                      <span>Approval: {c.approval ? 'Approved' : 'Pending'}</span>
+                      {c.approval ? <CheckCircle2 className="h-3 w-3 text-emerald-600" /> : null}
+                    </div>
+                    {c.approvalDate && (
+                      <span className="text-[10px] font-mono-numeric text-emerald-700 font-semibold mt-0.5 flex items-center gap-0.5">
+                        <Calendar className="h-2.5 w-2.5 text-emerald-600" />
+                        {c.approvalDate}
+                      </span>
+                    )}
                   </button>
 
-                  {/* Vault Passport */}
+                  {/* Passport (Physical in hand) */}
                   <button
                     onClick={(e) =>
                       handleCellUpdate(c.id, { passportInHand: !c.passportInHand }, e)
@@ -875,7 +892,7 @@ export default function CandidateTable({
                         : 'bg-slate-50 text-slate-500 border-slate-200'
                     }`}
                   >
-                    <span>Vault: {c.passportInHand ? 'In Hand' : 'Missing'}</span>
+                    <span>Passport: {c.passportInHand ? 'Received' : c.approval ? 'Missing' : 'Pending'}</span>
                     {c.passportInHand ? <Check className="h-3 w-3 stroke-[2.5]" /> : null}
                   </button>
 
@@ -890,7 +907,7 @@ export default function CandidateTable({
                         : 'bg-slate-50 text-slate-500 border-slate-200'
                     }`}
                   >
-                    <span>PCC: {c.pccReceived ? 'Verified' : 'Pending'}</span>
+                    <span>PCC: {c.pccReceived ? 'Received' : 'Pending'}</span>
                     {c.pccReceived ? <Check className="h-3 w-3 stroke-[2.5]" /> : null}
                   </button>
                 </div>
@@ -912,9 +929,9 @@ export default function CandidateTable({
         <table className="w-full text-left border-collapse text-xs">
           <thead className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur-xs border-b border-slate-200">
             <tr className="text-slate-600 font-semibold text-[11px] uppercase tracking-wider select-none">
-              {/* Col 1: Select & File ID */}
-              <th className="py-3 px-3 w-[140px] whitespace-nowrap">
-                <div className="flex items-center gap-2.5">
+              {/* Col 1: Select & SL */}
+              <th className="py-3 px-3 w-[70px] whitespace-nowrap">
+                <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     checked={allSelectedOnPage}
@@ -922,11 +939,11 @@ export default function CandidateTable({
                     className="rounded border-slate-300 accent-[#213F7C] text-[#213F7C] focus:ring-[#213F7C] cursor-pointer"
                   />
                   <button
-                    onClick={() => handleSort('fileId')}
+                    onClick={() => handleSort('sl')}
                     className="flex items-center gap-1 hover:text-[#213F7C] transition-colors cursor-pointer"
                   >
-                    <span>File ID</span>
-                    {sortField === 'fileId' && (
+                    <span>SL</span>
+                    {sortField === 'sl' && (
                       <span className="text-[#213F7C] font-bold">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                     )}
                   </button>
@@ -946,25 +963,35 @@ export default function CandidateTable({
                 </div>
               </th>
 
-              {/* Col 3: Agency & Placement */}
+              {/* Col 3: Agent & City */}
               <th
                 onClick={() => handleSort('agent')}
                 className="py-3 px-3.5 cursor-pointer hover:text-[#213F7C] hover:bg-slate-100/60 transition-colors whitespace-nowrap"
               >
                 <div className="flex items-center gap-1.5">
-                  <span>Agency &amp; Placement</span>
+                  <span>Agent &amp; City</span>
                   {sortField === 'agent' && (
                     <span className="text-[#213F7C] font-bold">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                   )}
                 </div>
               </th>
 
-              {/* Col 4: Milestones & Documents */}
-              <th className="py-3 px-3 text-center whitespace-nowrap">
-                Milestones &amp; Documents
+              {/* Col 4: Submission Slip */}
+              <th className="py-3 px-3 whitespace-nowrap">
+                Submission Slip
               </th>
 
-              {/* Col 5: Stage & Action */}
+              {/* Col 5: Approval */}
+              <th className="py-3 px-3 whitespace-nowrap">
+                Approval
+              </th>
+
+              {/* Col 6: Passport & PCC */}
+              <th className="py-3 px-3 whitespace-nowrap">
+                Passport &amp; PCC
+              </th>
+
+              {/* Col 7: Stage & Action */}
               <th
                 onClick={() => handleSort('stage')}
                 className="py-3 px-4 text-right cursor-pointer hover:text-[#213F7C] hover:bg-slate-100/60 transition-colors whitespace-nowrap"
@@ -981,7 +1008,7 @@ export default function CandidateTable({
           <tbody className="divide-y divide-slate-100 bg-white">
             {loading ? (
               <tr>
-                <td colSpan={5} className="py-12 text-center text-slate-500">
+                <td colSpan={7} className="py-12 text-center text-slate-500">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#213F7C] border-t-transparent" />
                     <span className="text-xs">Loading candidates...</span>
@@ -990,7 +1017,7 @@ export default function CandidateTable({
               </tr>
             ) : paginatedCandidates.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-12 text-center text-slate-500">
+                <td colSpan={7} className="py-12 text-center text-slate-500">
                   <p className="text-xs">No candidate records match your filter criteria.</p>
                   <button
                     onClick={handleClearAllFilters}
@@ -1015,20 +1042,20 @@ export default function CandidateTable({
                       isSelected ? 'bg-[#213F7C]/5' : ''
                     } ${isJustUpdated ? 'bg-amber-50/80' : ''}`}
                   >
-                    {/* Col 1: Select & File ID (No serial numbering) */}
+                    {/* Col 1: Select & SL (Clean serial number, no border, no background) */}
                     <td
                       className="py-3 px-3 align-middle whitespace-nowrap"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-2">
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => onToggleSelect(c.id)}
                           className="rounded border-slate-300 accent-[#213F7C] text-[#213F7C] focus:ring-[#213F7C] cursor-pointer"
                         />
-                        <span className="inline-flex items-center rounded-md bg-[#213F7C]/8 px-2 py-0.5 text-xs font-mono font-bold text-[#213F7C] border border-[#213F7C]/20 tracking-wide shadow-2xs whitespace-nowrap">
-                          {c.fileId}
+                        <span className="font-mono text-xs font-semibold text-slate-700 whitespace-nowrap">
+                          {c.sl}
                         </span>
                       </div>
                     </td>
@@ -1098,42 +1125,56 @@ export default function CandidateTable({
                       </div>
                     </td>
 
-                    {/* Col 4: Milestones & Documents (2x2 Compact Cluster of One-Click Toggles) */}
+                    {/* Col 4: Submission Slip (Status & Visible Date) */}
                     <td className="py-2.5 px-3 align-middle" onClick={(e) => e.stopPropagation()}>
-                      <div className="grid grid-cols-2 gap-1.5 min-w-[210px] max-w-[240px] mx-auto">
-                        {/* Submission Slip */}
+                      <div className="flex flex-col gap-1 min-w-[125px]">
                         <button
                           onClick={(e) =>
                             handleCellUpdate(
                               c.id,
                               {
                                 submissionSlip: !c.submissionSlip,
-                                submissionDate: !c.submissionSlip
+                                submissionDate: !c.submissionDate && !c.submissionSlip
                                   ? new Date().toLocaleDateString('en-GB')
                                   : null,
                               },
                               e
                             )
                           }
-                          title={c.submissionSlip ? `Submission Slip: Filed on ${c.submissionDate || 'N/A'}` : 'Submission Slip: Unfiled (Click to toggle)'}
-                          className={`inline-flex items-center justify-between gap-1 px-2 py-0.5 rounded text-[11px] font-medium border transition-all cursor-pointer ${
+                          title={c.submissionSlip ? `Submission Slip Filed: ${c.submissionDate || 'Yes'}` : 'Click to mark submission slip filed'}
+                          className={`inline-flex items-center justify-between gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold border transition-all cursor-pointer w-fit ${
                             c.submissionSlip
-                              ? 'bg-[#213F7C]/8 text-[#213F7C] border-[#213F7C]/20 hover:bg-[#213F7C]/15'
+                              ? 'bg-[#213F7C]/10 text-[#213F7C] border-[#213F7C]/25 hover:bg-[#213F7C]/15'
                               : 'bg-slate-50 text-slate-400 border-slate-200 hover:bg-slate-100'
                           }`}
                         >
-                          <span className="truncate">Slip</span>
-                          {c.submissionSlip ? <Check className="h-2.5 w-2.5 stroke-[2.5]" /> : <span className="text-[10px] text-slate-400">—</span>}
+                          <span>{c.submissionSlip ? 'Filed' : 'Pending'}</span>
+                          {c.submissionSlip ? <Check className="h-3 w-3 stroke-[2.5]" /> : null}
                         </button>
 
-                        {/* Work Permit Approval */}
+                        <div className="text-[11px] font-mono-numeric text-slate-600 flex items-center gap-1 pl-0.5">
+                          {c.submissionDate ? (
+                            <>
+                              <Calendar className="h-2.5 w-2.5 text-slate-400 shrink-0" />
+                              <span>{c.submissionDate}</span>
+                            </>
+                          ) : (
+                            <span className="text-slate-300 text-[10px]">—</span>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Col 5: Approval (Status & Visible Date) */}
+                    <td className="py-2.5 px-3 align-middle" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex flex-col gap-1 min-w-[125px]">
                         <button
                           onClick={(e) =>
                             handleCellUpdate(
                               c.id,
                               {
                                 approval: !c.approval,
-                                approvalDate: !c.approval
+                                approvalDate: !c.approvalDate && !c.approval
                                   ? new Date().toLocaleDateString('en-GB')
                                   : null,
                                 approvalCity: !c.approval ? c.approvalCity || 'Strumica' : c.approvalCity,
@@ -1141,24 +1182,44 @@ export default function CandidateTable({
                               e
                             )
                           }
-                          title={c.approval ? `Work Permit Approved: ${c.approvalDate || 'OK'}` : 'Work Permit: In Review (Click to approve)'}
-                          className={`inline-flex items-center justify-between gap-1 px-2 py-0.5 rounded text-[11px] font-medium border transition-all cursor-pointer ${
+                          title={c.approval ? `Work Permit Approved: ${c.approvalDate || 'OK'}` : 'Click to approve work permit'}
+                          className={`inline-flex items-center justify-between gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold border transition-all cursor-pointer w-fit ${
                             c.approval
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300 font-bold hover:bg-emerald-100'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
                               : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
                           }`}
                         >
-                          <span className="truncate">Permit</span>
-                          {c.approval ? <CheckCircle2 className="h-2.5 w-2.5 stroke-[2.5] text-emerald-600" /> : <span className="text-[10px] text-amber-600">Review</span>}
+                          <span>{c.approval ? 'Approved' : 'Pending'}</span>
+                          {c.approval ? (
+                            <CheckCircle2 className="h-3 w-3 text-emerald-600 stroke-[2.5]" />
+                          ) : (
+                            <Clock className="h-2.5 w-2.5 text-amber-600" />
+                          )}
                         </button>
 
-                        {/* Vault Passport */}
+                        <div className="text-[11px] font-mono-numeric flex items-center gap-1 pl-0.5">
+                          {c.approvalDate ? (
+                            <>
+                              <Calendar className="h-2.5 w-2.5 text-emerald-600 shrink-0" />
+                              <span className="text-emerald-700 font-semibold">{c.approvalDate}</span>
+                            </>
+                          ) : (
+                            <span className="text-slate-400 text-[10px]">In Review</span>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Col 6: Passport & PCC (Words from sheet, replacing 'Vault') */}
+                    <td className="py-2.5 px-3 align-middle" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex flex-col gap-1 min-w-[130px]">
+                        {/* Physical Passport In Office */}
                         <button
                           onClick={(e) =>
                             handleCellUpdate(c.id, { passportInHand: !c.passportInHand }, e)
                           }
-                          title={c.passportInHand ? "Physical passport safely deposited in office vault" : "Physical passport NOT deposited in vault"}
-                          className={`inline-flex items-center justify-between gap-1 px-2 py-0.5 rounded text-[11px] font-medium border transition-all cursor-pointer ${
+                          title={c.passportInHand ? "Physical passport in office" : "Physical passport pending collection"}
+                          className={`inline-flex items-center justify-between gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold border transition-all cursor-pointer w-fit ${
                             c.passportInHand
                               ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
                               : c.approval
@@ -1166,26 +1227,28 @@ export default function CandidateTable({
                               : 'bg-slate-50 text-slate-400 border-slate-200 hover:bg-slate-100'
                           }`}
                         >
-                          <span className="truncate">Vault</span>
-                          {c.passportInHand ? <Check className="h-2.5 w-2.5 stroke-[2.5]" /> : <span className="text-[10px] text-rose-500 font-bold">Missing</span>}
+                          <span>Passport: {c.passportInHand ? 'Received' : c.approval ? 'Missing' : 'Pending'}</span>
+                          {c.passportInHand ? (
+                            <Check className="h-2.5 w-2.5 stroke-[2.5]" />
+                          ) : c.approval ? (
+                            <AlertTriangle className="h-2.5 w-2.5 text-[#C0434A]" />
+                          ) : null}
                         </button>
 
-                        {/* PCC Status */}
+                        {/* PCC */}
                         <button
                           onClick={(e) =>
                             handleCellUpdate(c.id, { pccReceived: !c.pccReceived }, e)
                           }
-                          title={c.pccReceived ? "Police clearance certificate verified" : "Police clearance certificate pending"}
-                          className={`inline-flex items-center justify-between gap-1 px-2 py-0.5 rounded text-[11px] font-medium border transition-all cursor-pointer ${
+                          title={c.pccReceived ? "Police clearance certificate received" : "Police clearance certificate pending"}
+                          className={`inline-flex items-center justify-between gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold border transition-all cursor-pointer w-fit ${
                             c.pccReceived
                               ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
-                              : c.approval
-                              ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
                               : 'bg-slate-50 text-slate-400 border-slate-200 hover:bg-slate-100'
                           }`}
                         >
-                          <span className="truncate">PCC</span>
-                          {c.pccReceived ? <Check className="h-2.5 w-2.5 stroke-[2.5]" /> : <span className="text-[10px] text-slate-400">Pending</span>}
+                          <span>PCC: {c.pccReceived ? 'Received' : 'Pending'}</span>
+                          {c.pccReceived ? <Check className="h-2.5 w-2.5 stroke-[2.5]" /> : null}
                         </button>
                       </div>
                     </td>
